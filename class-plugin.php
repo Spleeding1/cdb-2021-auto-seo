@@ -5,8 +5,8 @@
  * Plugin URI: The home page of the plugin, which should be a unique URL, preferably on your own website. This must be unique to your plugin. You cannot use a WordPress.org URL here.
  * Description: A short description of the plugin, as displayed in the Plugins section in the WordPress Admin. Keep this description to fewer than 140 characters.
  * Version: 0.0.1
- * Requires at least: 5.8
- * Requires PHP: 7.4.1
+ * Requires at least: 5.8.1
+ * Requires PHP: 7.4
  * Author: Carl David Brubaker
  * Author URI: The author’s website or profile on another website, such as WordPress.org.
  * License: GPLv2 (or later)
