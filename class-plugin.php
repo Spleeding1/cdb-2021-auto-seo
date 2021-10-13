@@ -37,10 +37,6 @@ if (!defined($prefix . '_TEXT_DOMAIN')) {
 /**
  * File Imports
  */
-require_once PLUGIN_PATH . 'posts/POST-TYPE.php';
-// require_once PLUGIN_PATH . 'taxonomies/TAXONOMY.php';
-// require_once PLUGIN_PATH . 'permalinks.php';
-// require_once PLUGIN_PATH . 'widget.php';
 
 class PLUGIN
 {	
@@ -51,21 +47,8 @@ class PLUGIN
 	public function __construct(string $prefix)
 	{
 		$this->prefix = $prefix;
-		
-		// Register Post Types
-		$post_type = new posts\POST_TYPE($this->domain);
-
-		// Register Taxonomies
-		// $taxonomy = new taxonomies\TAXONOMY($this->domain, [$post_type->getPostType()]);
-
-		// Permalinks
-		// new permalinks\Permalinks([$post_type->getPostType()], $taxonomy->getTaxonomy());
 
 		add_action('init', [$this, 'activateOrUpdate']);
-
-		// Widget
-		// $widget = new widget\Widget($this->domain, $post_type->getPostType(), 'WIDGET TITLE');
-		// add_action( 'widgets_init', [$widget, 'registerWidget']);
 	}
 	
 	public function activateOrUpdate()
