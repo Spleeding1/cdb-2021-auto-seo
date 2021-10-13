@@ -51,9 +51,11 @@ class PLUGIN
 		add_action('init', [$this, 'activateOrUpdate']);
 	}
 	
+	/**
+	 * Perform actions if wp_option(PLUGIN_VERSION) does not match $this->version.
+	 */
 	public function activateOrUpdate()
 	{
-		// Check to see if wp_option(PLUGIN_VERSION) is the same as $this->version
 		if (!$this->pluginVersionOptionIsTheLatest()) {
 			// Do stuff if version has changed.
 			
