@@ -82,4 +82,7 @@ class PLUGIN
 		return false;
 	}
 }
-new PLUGIN($prefix);
+
+if (class_exists('PLUGIN')) {
+	new PLUGIN($prefix);
+}
