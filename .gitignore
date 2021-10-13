@@ -1,0 +1,7 @@
+# Ignore everything
+*
+
+!.gitignore
+!class-plugin.php
+!index.php
+!uninstall.php
