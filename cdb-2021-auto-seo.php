@@ -1,26 +1,26 @@
 <?php
 
 /**
- * Plugin Name: Silent SEO.
+ * Plugin Name: Auto SEO.
  * Plugin URI: The home page of the plugin, which should be a unique URL, preferably on your own website. This must be unique to your plugin. You cannot use a WordPress.org URL here.
  * Description: Automatically adds SEO tags to <head>. Does not display any field inputs in WordPress Editor. name="description" can be edited through post excerpts and taxonomy descriptions.
- * Version: 0.0.1
+ * Version: 1.0.0
  * Requires at least: 5.8.1
  * Requires PHP: 7.4
  * Author: Carl David Brubaker
  * Author URI: The author’s website or profile on another website, such as WordPress.org.
  * License: GPLv2 (or later)
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain: CDB_2021_SILENT_SEO
+ * Text Domain: CDB_2021_AUTO_SEO
  * Domain Path: /languages    The domain path lets WordPress know where to find the translations. More information can be found in the Domain Path section of the How to Internationalize your Plugin page.
  * Network: Whether the plugin can only be activated network-wide. Can only be set to true, and should be left out when not needed.
  */
 
-namespace cdb_2021_Silent_SEO;
+namespace cdb_2021_Auto_SEO;
 
 defined( 'ABSPATH' ) or exit;
 
-$prefix = 'CDB_2021_SILENT_SEO';
+$prefix = 'CDB_2021_AUTO_SEO';
 
 if ( ! defined( $prefix . '_PATH' ) ) {
 	define( $prefix . '_PATH', plugin_dir_path(__FILE__) );
@@ -34,10 +34,10 @@ if ( ! defined( $prefix . '_TEXT_DOMAIN') ) {
 	define( $prefix . '_TEXT_DOMAIN', 'Text Domain' );
 }
 
-class CDB_2021_Silent_SEO
+class CDB_2021_Auto_SEO
 {	
-	protected string $domain = CDB_2021_SILENT_SEO_TEXT_DOMAIN;
-	protected string $version = CDB_2021_SILENT_SEO_VERSION;
+	protected string $domain = CDB_2021_AUTO_SEO_TEXT_DOMAIN;
+	protected string $version = CDB_2021_AUTO_SEO_VERSION;
 	protected string $prefix;
 
 	public function __construct( string $prefix )
@@ -49,7 +49,7 @@ class CDB_2021_Silent_SEO
 	}
 	
 	/**
-	 * Perform actions if wp_option(CDB_2021_SILENT_SEO_VERSION) does not match $this->version.
+	 * Perform actions if wp_option(CDB_2021_AUTO_SEO_VERSION) does not match $this->version.
 	 */
 	public function activateOrUpdate()
 	{
@@ -138,16 +138,16 @@ class CDB_2021_Silent_SEO
 	}
 }
 
-if ( class_exists( 'cdb_2021_Silent_SEO\CDB_2021_Silent_SEO' ) ) {
-	new CDB_2021_Silent_SEO( $prefix );
+if ( class_exists( 'cdb_2021_Auto_SEO\CDB_2021_Auto_SEO' ) ) {
+	new CDB_2021_Auto_SEO( $prefix );
 }
 
 if ( is_admin() ) {
-	require_once CDB_2021_SILENT_SEO_PATH . 'admin.php';
+	require_once CDB_2021_AUTO_SEO_PATH . 'admin.php';
 
 	if ( class_exists(
-		'cdb_2021_Silent_SEO\admin\CDB_2021_Silent_SEO_Admin' ) ) {
-		new admin\CDB_2021_Silent_SEO_Admin();
+		'cdb_2021_Auto_SEO\admin\CDB_2021_Auto_SEO_Admin' ) ) {
+		new admin\CDB_2021_Auto_SEO_Admin();
 	}
 }
 
