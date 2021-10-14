@@ -1,6 +1,5 @@
 === Simply Auto SEO ===
 Contributors: imconfused4sure
-Donate link: https://example.com/
 Tags: seo, search engine optimization, easy seo, 
 Requires at least: 5.8
 Tested up to: 5.8
