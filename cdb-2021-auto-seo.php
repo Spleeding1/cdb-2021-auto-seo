@@ -4,7 +4,7 @@
  * Plugin Name: Auto SEO
  * Plugin URI: https://github.com/Spleeding1/cdb-2021-auto-seo
  * Description: Automatically adds SEO tags to <head>. Does not display any field inputs in WordPress Editor. name="description" can be edited through post excerpts and taxonomy descriptions.
- * Version: 1.0.2
+ * Version: 1.0.0
  * Requires at least: 5.8
  * Requires PHP: 7.4
  * Author: Carl David Brubaker
@@ -26,7 +26,7 @@ if ( ! defined( $prefix . '_PATH' ) ) {
 }
 
 if ( ! defined($prefix . '_VERSION') ) {
-	define( $prefix . '_VERSION', '1.0.2' );
+	define( $prefix . '_VERSION', '1.0.0' );
 }
 
 if ( ! defined( $prefix . '_TEXT_DOMAIN') ) {
