@@ -2,7 +2,7 @@
 
 /**
  * Plugin Name: Auto SEO.
- * Plugin URI: The home page of the plugin, which should be a unique URL, preferably on your own website. This must be unique to your plugin. You cannot use a WordPress.org URL here.
+ * Plugin URI: https://github.com/Spleeding1/cdb-2021-auto-seo
  * Description: Automatically adds SEO tags to <head>. Does not display any field inputs in WordPress Editor. name="description" can be edited through post excerpts and taxonomy descriptions.
  * Version: 1.0.0
  * Requires at least: 5.8
