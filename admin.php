@@ -24,6 +24,9 @@ class CDB_2021_Auto_SEO_Admin
 		);
 	}
 
+	/**
+	 * Add Auto SEO settings page to 'Settings' in admin menu.
+	 */
 	public function add_action_admin_settings_page()
 	{
 		add_options_page(
@@ -35,6 +38,9 @@ class CDB_2021_Auto_SEO_Admin
 		);
 	}
 
+	/**
+	 * Registers settings.
+	 */
 	public function add_action_register_settings()
 	{
 		register_setting(
@@ -57,13 +63,19 @@ class CDB_2021_Auto_SEO_Admin
 		);
 	}
 
+	/**
+	 * Description for 'Trim Description at' setting.
+	 */
 	public function settings_section_description()
 	{
 		echo '<p>'
-			 . __( 'Enter a word or HTML ASCII code to trim the description. Useful if description is consistently displaying non-relevant information in the description, i.e. "Read More". Trimming takes place before translations.' )
+			 . __( 'Enter a word or HTML ASCII code to trim the description. Useful if description is consistently displaying non-relevant information in the description, i.e. "Read More". The entered information will be excluded from the description. Trimming takes place before translations.' )
 			 . '</p>';
 	}
 
+	/**
+	 * trim_description form field.
+	 */
 	public function trim_description_field()
 	{
 		$options = get_option( 'cdb_2021_auto_seo_options' );
@@ -77,6 +89,9 @@ class CDB_2021_Auto_SEO_Admin
 		<?php
 	}
 
+	/**
+	 * Displays the Auto SEO admin page.
+	 */
 	public function auto_seo_options_page()
 	{
 		?>
@@ -91,6 +106,10 @@ class CDB_2021_Auto_SEO_Admin
 		<?php
 	}
 
+	/**
+	 * Sanitizes submitted trim_description input.
+	 * @return array $input - submitted form data.
+	 */
 	public function auto_seo_validate_options( $input )
 	{
 		if ( isset( $input['trim_description'] ) ) {

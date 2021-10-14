@@ -55,8 +55,6 @@ class CDB_2021_Auto_SEO
 	{
 		if ( ! $this->pluginVersionOptionIsTheLatest() ) {
 			// Do stuff if version has changed.
-			
-			flush_rewrite_rules();
 		}
 	}
 	
@@ -87,22 +85,32 @@ class CDB_2021_Auto_SEO
 	 * Adds SEO meta tags to head if current page. 
 	 * 
 	 * is_singular - will display entered excerpt or pull from page content.
+	 *             - will trim description at string given on settings page.
 	 * is_category, is_tag, is_author, is_post_type_archive, is_tax - will only display if description is set.
+	 * 
 	 */
 	public function action_add_seo_meta_tags()
 	{
 		if ( ! get_post_status() === 'public' ) {
-			// return;
+			return;
 		}
 		
 		global $wp;
 		$description = null;
 		
 		if ( is_singular() || is_front_page() ) {
-			$description = explode( '&hellip;', get_the_excerpt() )[0] 
-						   . '&hellip;';
+
+			// Trim description if option is set.
+			if ( $trim_at = get_option(
+							'cdb_2021_auto_seo_options' )['trim_description']
+			) {
+				$description = explode( $trim_at, get_the_excerpt() )[0] 
+							   . '&hellip;';
+			} else {
+				$description = get_the_excerpt();
+			}
 		} else if ( is_category() || is_tag() || is_author()
-		|| is_post_type_archive() || is_tax()) {
+					|| is_post_type_archive() || is_tax()) {
 			$description = get_the_archive_description();
 		}
 		
@@ -119,14 +127,8 @@ class CDB_2021_Auto_SEO
 		
 		$title = is_front_page()
 				 ? get_bloginfo( 'description' ) : get_the_title();
-				 
-		if ( $title ) {
-			?>
-			<meta property="og:title"
-				  content="<?php echo esc_attr_e( $title ); ?>">
-			<?php
-		}
 		?>
+		<meta property="og:title" content="<?php echo esc_attr_e( $title ); ?>">
 		<meta property="og:type" content="website">
 		<meta property="og:url"
 			  content="<?php echo esc_attr( home_url( $wp->request ) ); ?>">
@@ -145,8 +147,7 @@ if ( class_exists( 'cdb_2021_Auto_SEO\CDB_2021_Auto_SEO' ) ) {
 if ( is_admin() ) {
 	require_once CDB_2021_AUTO_SEO_PATH . 'admin.php';
 
-	if ( class_exists(
-		'cdb_2021_Auto_SEO\admin\CDB_2021_Auto_SEO_Admin' ) ) {
+	if ( class_exists( 'cdb_2021_Auto_SEO\admin\CDB_2021_Auto_SEO_Admin' ) ) {
 		new admin\CDB_2021_Auto_SEO_Admin();
 	}
 }
