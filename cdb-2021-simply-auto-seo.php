@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Plugin Name: Auto SEO
- * Plugin URI: https://github.com/Spleeding1/cdb-2021-auto-seo
- * Description: Automatically adds SEO tags to <head>. Does not display any field inputs in WordPress Editor. name="description" can be edited through post excerpts and taxonomy descriptions.
+ * Plugin Name: Simply Auto SEO
+ * Plugin URI: https://github.com/Spleeding1/cdb-2021-simply-auto-seo
+ * Description: Automatically adds SEO tags to &lt;head&gt;. Does not display any field inputs in WordPress Editor. name="description" can be edited through post excerpts and taxonomy descriptions.
  * Version: 1.0.0
  * Requires at least: 5.8
  * Requires PHP: 7.4
@@ -11,15 +11,15 @@
  * Author URI: https://github.com/Spleeding1
  * License: GPLv3 (or later)
  * License URI: https://www.gnu.org/licenses/gpl-3.0.html
- * Text Domain: CDB_2021_AUTO_SEO
+ * Text Domain: CDB_2021_SIMPLY_AUTO_SEO
  * Domain Path: /languages
  */
 
-namespace cdb_2021_Auto_SEO;
+namespace cdb_2021_Simply_Auto_SEO;
 
 defined( 'ABSPATH' ) or exit;
 
-$prefix = 'CDB_2021_AUTO_SEO';
+$prefix = 'CDB_2021_SIMPLY_AUTO_SEO';
 
 if ( ! defined( $prefix . '_PATH' ) ) {
 	define( $prefix . '_PATH', plugin_dir_path(__FILE__) );
@@ -33,10 +33,10 @@ if ( ! defined( $prefix . '_TEXT_DOMAIN') ) {
 	define( $prefix . '_TEXT_DOMAIN', 'Text Domain' );
 }
 
-class CDB_2021_Auto_SEO
+class CDB_2021_Simply_Auto_SEO
 {	
-	protected string $domain = CDB_2021_AUTO_SEO_TEXT_DOMAIN;
-	protected string $version = CDB_2021_AUTO_SEO_VERSION;
+	protected string $domain = CDB_2021_SIMPLY_AUTO_SEO_TEXT_DOMAIN;
+	protected string $version = CDB_2021_SIMPLY_AUTO_SEO_VERSION;
 	protected string $prefix;
 
 	public function __construct( string $prefix )
@@ -48,7 +48,7 @@ class CDB_2021_Auto_SEO
 	}
 	
 	/**
-	 * Perform actions if wp_option(CDB_2021_AUTO_SEO_VERSION) does not match $this->version.
+	 * Perform actions if wp_option(CDB_2021_SIMPLY_AUTO_SEO_VERSION) does not match $this->version.
 	 */
 	public function activateOrUpdate()
 	{
@@ -101,7 +101,7 @@ class CDB_2021_Auto_SEO
 
 			// Trim description if option is set.
 			if ( $trim_at = get_option(
-							'cdb_2021_auto_seo_options' )['trim_description']
+							'cdb_2021_simply_auto_seo_options' )['trim_description']
 			) {
 				$description = explode( $trim_at, get_the_excerpt() )[0] 
 							   . '&hellip;';
@@ -139,15 +139,15 @@ class CDB_2021_Auto_SEO
 	}
 }
 
-if ( class_exists( 'cdb_2021_Auto_SEO\CDB_2021_Auto_SEO' ) ) {
-	new CDB_2021_Auto_SEO( $prefix );
+if ( class_exists( 'cdb_2021_Simply_Auto_SEO\CDB_2021_Simply_Auto_SEO' ) ) {
+	new CDB_2021_Simply_Auto_SEO( $prefix );
 }
 
 if ( is_admin() ) {
-	require_once CDB_2021_AUTO_SEO_PATH . 'admin.php';
+	require_once CDB_2021_SIMPLY_AUTO_SEO_PATH . 'admin.php';
 
-	if ( class_exists( 'cdb_2021_Auto_SEO\admin\CDB_2021_Auto_SEO_Admin' ) ) {
-		new admin\CDB_2021_Auto_SEO_Admin();
+	if ( class_exists( 'cdb_2021_Simply_Auto_SEO\admin\CDB_2021_Simply_Auto_SEO_Admin' ) ) {
+		new admin\CDB_2021_Simply_Auto_SEO_Admin();
 	}
 }
 
