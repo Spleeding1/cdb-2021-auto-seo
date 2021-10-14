@@ -16,7 +16,7 @@
  * Network: Whether the plugin can only be activated network-wide. Can only be set to true, and should be left out when not needed.
  */
 
-namespace cdb_2021_Silent_Seo;
+namespace cdb_2021_Silent_SEO;
 
 defined( 'ABSPATH' ) or exit;
 
@@ -37,6 +37,9 @@ if ( ! defined( $prefix . '_TEXT_DOMAIN') ) {
 /**
  * File Imports
  */
+if ( is_admin() ) {
+	require_once 
+}
 
 class CDB_2021_SILENT_SEO
 {	
@@ -50,9 +53,11 @@ class CDB_2021_SILENT_SEO
 
 		add_action( 'init', array( $this, 'activateOrUpdate' ) );
 		add_action( 'wp_head', array( $this, 'action_add_seo_meta_tags' ) );
-
-		// add_options_page( 'Silent SEO Settings', 'Silent SEO', )
-
+		add_action( 'admin_menu', array( $this, 'add_action_admin_settings' ) );
+		add_action(
+			'admin_init',
+			array( $this, 'add_action_register_settings' )
+		);
 	}
 	
 	/**
@@ -115,30 +120,110 @@ class CDB_2021_SILENT_SEO
 		
 		// Print meta description in head if $desc is not null.
 		if ( $description ) {
-			echo '<meta name="description" content="'
-			. strip_tags( $description ) . '" >' . "\n";
-			echo '<meta property="og:description" content="'
-			. strip_tags( $description ) . '" >' . "\n";
+			$description = strip_tags( $description );
+			?>
+			<meta name="description"
+				  content="<?php echo esc_attr_e( $description ); ?>">
+			<meta property="og:description"
+				  content="<?php echo esc_attr_e( $description ); ?>">
+			<?php
 		}
 		
 		if ( $title = get_the_title() ) {
-			echo '<meta property="og:description" content="'
-			. strip_tags( $description ) . '" >' . "\n";
+			?>
+			<meta property="og:description"
+				  content="<?php echo esc_attr_e( $description ); ?>">
+			<?php
 		}
-		
-		echo '<meta property="og:type" content="website" >' . "\n";
-		
-		echo '<meta property="og:url" content="'
-		. home_url( $wp->request ) . '" >' . "\n";
-		
-		echo '<meta property="og:site_name" content="'
-		. get_bloginfo( 'name' ) . '" >' . "\n";
-		echo '<meta property="og:site_name" content="'
-		. get_bloginfo( 'language' ) . '" >' . "\n";
-		
+		?>
+		<meta property="og:type" content="website">
+		<meta property="og:url"
+			  content="<?php echo esc_attr( home_url( $wp->request ) ); ?>">
+		<meta property="og:site_name"
+			  content="<?php echo esc_attr_e( get_bloginfo( 'name' ) ); ?>">
+		<meta property="og:site_name"
+			  content="<?php echo esc_attr_e( get_bloginfo( 'language' ) ); ?>">
+		<?php
+	}
+
+	public function add_action_admin_settings()
+	{
+		add_options_page(
+			'Silent SEO Settings',
+			'Silent SEO',
+			'manage_options',
+			'cdb-2021-silent-seo-settings',
+			array( $this, 'silent_seo_options_page'),
+		);
+	}
+
+	public function silent_seo_options_page()
+	{
+		?>
+		<h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
+		<form action="options.php" method="post">
+			<?php
+			settings_fields( 'cdb_2021_silent_seo_options' );
+			do_settings_sections( 'cdb_2021_silent_seo' );
+			submit_button();
+			?>
+		</form>
+		<?php
+	}
+
+	public function add_action_register_settings()
+	{
+		register_setting(
+			'cdb_2021_silent_seo_options',
+			'cdb_2021_silent_seo_options',
+			array( $this, 'silent_seo_validate_options' ),
+		);
+		add_settings_section(
+			'cdb_2021_silent_seo_section_description',
+			esc_html__( 'Description Settings', $this->domain ),
+			array( $this, 'settings_section_description' ),
+			'cdb_2021_silent_seo'
+		);
+		add_settings_field(
+			'cdb_2021_silent_seo_trim_description',
+			esc_html__( 'Trim Description at', $this->domain ),
+			array( $this, 'trim_description_field' ),
+			'cdb_2021_silent_seo',
+			'cdb_2021_silent_seo_section_description',
+		);
+	}
+
+	public function settings_section_description()
+	{
+		echo '<p>'
+			 . __( 'Enter a word or HTML ASCII code to trim the description. Useful if description is consistently displaying non-relevant information in the description, i.e. "Read More". Trimming takes place before translations.' )
+			 . '</p>';
+	}
+
+	public function trim_description_field()
+	{
+		$options = get_option( 'cdb_2021_silent_seo_options' );
+		$trim = isset( $options['trim_description'] )
+				? $options['trim_description'] : '';
+		?>
+		<input id="cdb_2021_silent_seo_trim_description"
+			   name="cdb_2021_silent_seo_options[trim_description]"
+			   type="text"
+			   value="<?php echo esc_attr( $trim ); ?>">
+		<?php
+	}
+
+	public function silent_seo_validate_options( $input )
+	{
+		if ( isset( $input['trim_description'] ) ) {
+			$input['trim_description'] = sanitize_text_field( 
+				$input['trim_description']
+			);
+		}
+		return $input;
 	}
 }
 
-if ( class_exists( 'cdb_2021_Silent_Seo\CDB_2021_SILENT_SEO' ) ) {
+if ( class_exists( 'cdb_2021_Silent_SEO\CDB_2021_SILENT_SEO' ) ) {
 	$silent_seo = new CDB_2021_SILENT_SEO( $prefix );
 }
