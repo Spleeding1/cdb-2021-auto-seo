@@ -75,7 +75,7 @@ class PLUGIN
 	 */
 	protected array  $options = array(
 		'_VERSION' => array(
-			'create' => false,
+			'update' => false,
 		),
 	);
 
