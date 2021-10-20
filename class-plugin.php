@@ -154,6 +154,13 @@ class PLUGIN
 		}
 
 		foreach ( $this->options as $option => $setting ) {
+			if (
+				( ! array_key_exists( 'update', $setting ) ) ||
+				( ! array_key_exists( 'value',  $setting ) )
+			) {
+				continue;
+			}
+
 			if ( ! $setting['update'] ) {
 				continue;
 			}
@@ -181,6 +188,13 @@ class PLUGIN
 		}
 
 		foreach ( $this->transient as $transient => $setting ) {
+			if (
+				( ! array_key_exists( 'update', $setting ) ) ||
+				( ! array_key_exists( 'value',  $setting ) )
+			) {
+				continue;
+			}
+			
 			if ( ! $setting['update'] ) {
 				continue;
 			}
@@ -233,6 +247,6 @@ class PLUGIN
 	}
 }
 
-if ( class_exists( 'PLUGIN' ) ) {
+if ( class_exists( 'NAMESPACE\PLUGIN' ) ) {
 	new PLUGIN( $prefix );
 }
