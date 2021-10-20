@@ -18,46 +18,105 @@
 
 namespace NAMESPACE;
 
-defined('ABSPATH') or exit;
+defined( 'ABSPATH' ) or exit;
 
 $prefix = 'PLUGIN_PREFIX';
 
-if (!defined($prefix . '_PATH')) {
-	define($prefix . '_PATH', plugin_dir_path(__FILE__));
+if ( ! defined( $prefix . '_PATH' ) ) {
+	define( $prefix . '_PATH', plugin_dir_path( __FILE__ ) );
 }
 
-if (!defined($prefix . '_VERSION')) {
-	define($prefix . '_VERSION', '0.0.1');
+if ( ! defined( $prefix . '_VERSION' ) ) {
+	define( $prefix . '_VERSION', '0.0.1' );
 }
 
-if (!defined($prefix . '_TEXT_DOMAIN')) {
-	define($prefix . '_TEXT_DOMAIN', 'Text Domain');
+if ( ! defined( $prefix . '_TEXT_DOMAIN' ) ) {
+	define( $prefix . '_TEXT_DOMAIN', 'Text Domain' );
 }
-
-/**
- * File Imports
- */
 
 class PLUGIN
-{	
-	protected string $domain = PLUGIN_TEXT_DOMAIN;
-	protected string $version = PLUGIN_VERSION;
+{
+	/**
+	 * Plugin prefix defined above. Sets when class is contructed.
+	 */
 	protected string $prefix;
 
-	public function __construct(string $prefix)
+	/**
+	 * Plugin text domain defined globally.
+	 */
+	protected string $domain = PLUGIN_TEXT_DOMAIN;
+
+	/**
+	 * Plugin version defined globally.
+	 */
+	protected string $version = PLUGIN_VERSION;
+
+	/**
+	 * Names of plugin options stored in the options table.
+	 * 
+	 * Used to delete_option on uninstall.
+	 * - List all possible options that can be set to ensure proper cleanup.
+	 * 
+	 * Can be used to add_option and update_option if 'update' => true.
+	 * 
+	 * $this->prefix is added to key on creation and deletion.
+	 * 
+	 * example:
+	 * 
+	 * $prefix = 'my_plugin';
+	 * $options = array(
+	 *     '_VERSION' => array(
+	 *         'update' => false,
+	 *     ),
+	 *     'my_option' => array(
+	 *         'value' => 'My Value',
+	 *         'update' => true),
+	 * );
+	 */
+	protected array  $options = array(
+		'_VERSION' => array(
+			'create' => false,
+		),
+	);
+
+	/**
+	 * Names of plugin transients stored in the transients table.
+	 * 
+	 * Used to delete_transient on uninstall.
+	 * - List all possible options that can be set to ensure proper cleanup.
+	 * 
+	 * Can be used to set_transient if 'update' => true.
+	 * 
+	 * $this->prefix is added to key on creation and deletion.
+	 * 
+	 * example:
+	 * 
+	 * $prefix = 'my_plugin';
+	 * $transients = array(
+	 *     'my_transient' => array(
+	 *         'value' => 'My Value',
+	 *         'update' => true),
+	 * );
+	 */
+	protected array  $transients = array();
+
+	public function __construct( string $prefix )
 	{
 		$this->prefix = $prefix;
 
-		add_action('init', [$this, 'activateOrUpdate']);
+		add_action( 'init', array( $this, 'activateOrUpdate' ) );
 	}
 	
 	/**
-	 * Perform actions if wp_option(PLUGIN_VERSION) does not match $this->version.
+	 * Perform actions if wp_option( PLUGIN_VERSION ) does not match
+	 * $this->version.
 	 */
 	public function activateOrUpdate()
 	{
-		if (!$this->pluginVersionOptionIsTheLatest()) {
+		if ( ! $this->pluginVersionOptionIsTheLatest() ) {
 			// Do stuff if version has changed.
+			$this->updatePluginOptions();
+			$this->updatePluginTransients();
 			
 			flush_rewrite_rules();
 		}
@@ -69,22 +128,111 @@ class PLUGIN
 	 * true if plugin version matches stored version.
 	 * false if plugin version does not match or no option stored.
 	 */
-	public function pluginVersionOptionIsTheLatest()
+	protected function pluginVersionOptionIsTheLatest()
 	{
-		$option_value = get_option($this->prefix . '_VERSION');
+		$option_value = get_option( $this->prefix . '_VERSION' );
 	
-		if ($option_value === $this->version) {
+		if ( $option_value === $this->version ) {
 			return true;
-		} elseif ($option_value === false) {
-			add_option($this->prefix . '_VERSION', $this->version);
+		} elseif ( ! $option_value ) {
+			add_option( $this->prefix . '_VERSION', $this->version );
 		} else {
-			update_option($this->prefix . '_VERSION', $this->version);
+			update_option( $this->prefix . '_VERSION', $this->version );
 		}
 		
 		return false;
 	}
+
+	/**
+	 * Creates or updates plugin options on the options table, using
+	 * $this->options array.
+	 */
+	protected function updatePluginOptions()
+	{
+		if ( empty( $this->options ) ) {
+			return;
+		}
+
+		foreach ( $this->options as $option => $setting ) {
+			if ( ! $setting['update'] ) {
+				continue;
+			}
+
+			$option_value = get_option( $this->prefix . $option );
+
+			if ( $option_value === $setting['value'] ) {
+				continue;
+			} elseif ( ! $option_value ) {
+				add_option( $this->prefix . $option, $setting['value'] );
+			} else {
+				update_option( $this->prefix . $option, $setting['value'] );
+			}
+		}
+	}
+
+	/**
+	 * Sets plugin transients on the options table, using
+	 * $this->transients array.
+	 */
+	protected function updatePluginTransients()
+	{
+		if ( empty( $this->transients ) ) {
+			return;
+		}
+
+		foreach ( $this->transient as $transient => $setting ) {
+			if ( ! $setting['update'] ) {
+				continue;
+			}
+
+			$transient_value = get_transient( $this->prefix . $transient );
+
+			if ( $transient_value === $setting['value'] ) {
+				continue;
+			} else {
+				set_transient( $this->prefix . $transient, $setting['value'] );
+			}
+		}
+	}
+
+	/**
+	 * Deletes all plugin information on uninstall.
+	 */
+	public function uninstallPlugin()
+	{
+		$this->deletePluginTransients();
+		$this->deletePluginOptions();
+	}
+
+	/**
+	 * Deletes all plugin transients listed in $this->transients.
+	 */
+	protected function deletePluginTransients()
+	{
+		if ( empty( $this->transients ) ) {
+			return;
+		}
+
+		foreach ( $this->transients as $transient => $setting ) {
+			delete_transient( $this->prefix . $transient );
+		}
+	}
+
+	/**
+	 * Deletes all plugin options listed in $this->options.
+	 */
+	protected function deletePluginOptions()
+	{
+		if ( empty( $this->options ) ) {
+			return;
+		}
+
+		foreach ( $this->options as $option => $setting ) {
+			delete_transient( $this->prefix . $option );
+		}
+	}
 }
 
-if (class_exists('PLUGIN')) {
-	new PLUGIN($prefix);
+if ( class_exists( 'PLUGIN' ) ) {
+	new PLUGIN( $prefix );
 }

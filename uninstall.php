@@ -1,20 +1,23 @@
 <?php
 
-// namespace NAMESPACE\uninstall;
+/**
+ * uninstall.php
+ * 
+ * Uninstalls plugin PLUGIN
+ */
 
-defined('ABSPATH') or exit;
+defined( 'ABSPATH' ) or exit;
 
 // exit if uninstall constant is not defined
-defined('WP_UNINSTALL_PLUGIN') or exit;
+defined( 'WP_UNINSTALL_PLUGIN' ) or exit;
 
 // User wants to delete all data.
-if (!get_option('plugin_do_uninstall', false)) exit;
+if ( ! get_option( 'plugin_do_uninstall', false ) ) exit;
 
-// delete plugin options
-delete_option('myplugin_options');
+use PLUGIN\PLUGIN;
 
-// delete plugin transient
-delete_transient('myplugin_transient');
+$plugin = new Plugin();
+$plugin->uninstallPlugin();
 
 // delete cron event
 $timestamp = wp_next_scheduled('myplugin_cron_event');
