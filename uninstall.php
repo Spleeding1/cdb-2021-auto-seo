@@ -14,10 +14,13 @@ defined( 'WP_UNINSTALL_PLUGIN' ) or exit;
 // User wants to delete all data.
 if ( ! get_option( 'plugin_do_uninstall', false ) ) exit;
 
-use PLUGIN\PLUGIN;
+use NAMESPACE\PLUGIN;
 
-$plugin = new Plugin();
-$plugin->uninstallPlugin();
+if ( class_exists( 'NAMESPACE\PLUGIN')) {
+	
+	$plugin = new NAMESPACE\PLUGIN();
+	$plugin->uninstallPlugin();
+}
 
 // delete cron event
 $timestamp = wp_next_scheduled('myplugin_cron_event');
