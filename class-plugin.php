@@ -233,7 +233,7 @@ class {{PLUGIN}}
 		}
 
 		foreach ( $this->options as $option => $setting ) {
-			delete_transient( $this->prefix . $option );
+			delete_option( $this->prefix . $option );
 		}
 	}
 }
