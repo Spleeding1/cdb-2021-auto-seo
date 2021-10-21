@@ -11,16 +11,16 @@
  * Author URI: The author’s website or profile on another website, such as WordPress.org.
  * License: GPLv2 (or later)
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain: PLUGIN   The gettext text domain of the plugin. More information can be found in the Text Domain section of the How to Internationalize your Plugin page.
+ * Text Domain: {{PLUGIN}}   The gettext text domain of the plugin. More information can be found in the Text Domain section of the How to Internationalize your Plugin page.
  * Domain Path: /languages    The domain path lets WordPress know where to find the translations. More information can be found in the Domain Path section of the How to Internationalize your Plugin page.
  * Network: Whether the plugin can only be activated network-wide. Can only be set to true, and should be left out when not needed.
  */
 
-namespace NAMESPACE;
+namespace {{PLUGIN}};
 
 defined( 'ABSPATH' ) or exit;
 
-$prefix = 'PLUGIN_PREFIX';
+$prefix = '{{PLUGIN}}_PREFIX';
 
 if ( ! defined( $prefix . '_PATH' ) ) {
 	define( $prefix . '_PATH', plugin_dir_path( __FILE__ ) );
@@ -34,7 +34,7 @@ if ( ! defined( $prefix . '_TEXT_DOMAIN' ) ) {
 	define( $prefix . '_TEXT_DOMAIN', 'Text Domain' );
 }
 
-class PLUGIN
+class {{PLUGIN}}
 {
 	/**
 	 * Plugin prefix defined above. Sets when class is contructed.
@@ -44,12 +44,12 @@ class PLUGIN
 	/**
 	 * Plugin text domain defined globally.
 	 */
-	protected string $domain = PLUGIN_TEXT_DOMAIN;
+	protected string $domain = {{PLUGIN}}_TEXT_DOMAIN;
 
 	/**
 	 * Plugin version defined globally.
 	 */
-	protected string $version = PLUGIN_VERSION;
+	protected string $version = {{PLUGIN}}_VERSION;
 
 	/**
 	 * Names of plugin options stored in the options table.
@@ -107,8 +107,9 @@ class PLUGIN
 		add_action( 'init', array( $this, 'activateOrUpdate' ) );
 	}
 	
+	
 	/**
-	 * Perform actions if wp_option( PLUGIN_VERSION ) does not match
+	 * Perform actions if wp_option( {{PLUGIN}}_VERSION ) does not match
 	 * $this->version.
 	 */
 	public function activateOrUpdate()
@@ -154,25 +155,20 @@ class PLUGIN
 		}
 
 		foreach ( $this->options as $option => $setting ) {
-			if (
-				( ! array_key_exists( 'update', $setting ) ) ||
-				( ! array_key_exists( 'value',  $setting ) )
-			) {
-				continue;
-			}
-
-			if ( ! $setting['update'] ) {
+			$update = $setting['update'] ?? null;
+			$value  = $setting['value']  ?? null;
+			if ( empty( $update ) || empty( $value ) ) {
 				continue;
 			}
 
 			$option_value = get_option( $this->prefix . $option );
 
-			if ( $option_value === $setting['value'] ) {
+			if ( $option_value === $value ) {
 				continue;
 			} elseif ( ! $option_value ) {
-				add_option( $this->prefix . $option, $setting['value'] );
+				add_option( $this->prefix . $option, $value );
 			} else {
-				update_option( $this->prefix . $option, $setting['value'] );
+				update_option( $this->prefix . $option, $value );
 			}
 		}
 	}
@@ -188,23 +184,18 @@ class PLUGIN
 		}
 
 		foreach ( $this->transient as $transient => $setting ) {
-			if (
-				( ! array_key_exists( 'update', $setting ) ) ||
-				( ! array_key_exists( 'value',  $setting ) )
-			) {
-				continue;
-			}
-			
-			if ( ! $setting['update'] ) {
+			$update = $setting['update'] ?? null;
+			$value  = $setting['value']  ?? null;
+			if ( empty( $update ) || empty( $value ) ) {
 				continue;
 			}
 
 			$transient_value = get_transient( $this->prefix . $transient );
 
-			if ( $transient_value === $setting['value'] ) {
+			if ( $transient_value === $value ) {
 				continue;
 			} else {
-				set_transient( $this->prefix . $transient, $setting['value'] );
+				set_transient( $this->prefix . $transient, $value );
 			}
 		}
 	}
@@ -247,6 +238,6 @@ class PLUGIN
 	}
 }
 
-if ( class_exists( 'NAMESPACE\PLUGIN' ) ) {
-	new PLUGIN( $prefix );
+if ( class_exists( '{{PLUGIN}}\{{PLUGIN}}' ) ) {
+	new {{PLUGIN}}( $prefix );
 }

@@ -4,6 +4,8 @@
  * uninstall.php
  * 
  * Uninstalls plugin PLUGIN
+ * 
+ * replace with filecopy
  */
 
 defined( 'ABSPATH' ) or exit;
@@ -14,14 +16,17 @@ defined( 'WP_UNINSTALL_PLUGIN' ) or exit;
 // User wants to delete all data.
 if ( ! get_option( 'plugin_do_uninstall', false ) ) exit;
 
-use NAMESPACE\PLUGIN;
+use {{PLUGIN}}\{{PLUGIN}};
 
-if ( class_exists( 'NAMESPACE\PLUGIN')) {
+if ( class_exists( '{{NAMESPACE}}\{{PLUGIN}}')) {
 	
-	$plugin = new NAMESPACE\PLUGIN();
+	$plugin = new {{NAMESPACE}}\{{PLUGIN}}();
 	$plugin->uninstallPlugin();
 }
 
+/**
+ * DELETED: if unused
+ */
 // delete cron event
 $timestamp = wp_next_scheduled('myplugin_cron_event');
 wp_unschedule_event($timestamp, 'myplugin_cron_event');
