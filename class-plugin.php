@@ -16,6 +16,10 @@
  * Network: Whether the plugin can only be activated network-wide. Can only be set to true, and should be left out when not needed.
  */
 
+/**
+ * filecopy
+ */
+
 namespace {{PLUGIN}};
 
 defined( 'ABSPATH' ) or exit;
