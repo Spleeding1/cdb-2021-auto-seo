@@ -4,11 +4,11 @@
  * Plugin Name: Simply Auto SEO
  * Plugin URI: https://github.com/Spleeding1/cdb-2021-simply-auto-seo
  * Description: Automatically adds SEO tags to &lt;head&gt;. Does not display any field inputs in WordPress Editor. name="description" can be edited through post excerpts and taxonomy descriptions.
- * Version: 1.0.0
+ * Version: 1.0.1
  * Requires at least: 5.8
  * Requires PHP: 7.4
  * Author: Carl David Brubaker
- * Author URI: https://github.com/Spleeding1
+ * Author URI: https://carlbrubaker.com/
  * License: GPLv3 (or later)
  * License URI: https://www.gnu.org/licenses/gpl-3.0.html
  * Text Domain: CDB_2021_SIMPLY_AUTO_SEO
@@ -26,7 +26,7 @@ if ( ! defined( $prefix . '_PATH' ) ) {
 }
 
 if ( ! defined($prefix . '_VERSION') ) {
-	define( $prefix . '_VERSION', '1.0.0' );
+	define( $prefix . '_VERSION', '1.0.1' );
 }
 
 if ( ! defined( $prefix . '_TEXT_DOMAIN') ) {
@@ -100,11 +100,15 @@ class CDB_2021_Simply_Auto_SEO
 		if ( is_singular() || is_front_page() ) {
 
 			// Trim description if option is set.
-			if ( $trim_at = get_option(
-							'cdb_2021_simply_auto_seo_options' )['trim_description']
+			$trim_at = get_option( 'cdb_2021_simply_auto_seo_options' );
+			if (
+				array_key_exists( 'trim_description', $trim_at ) &&
+				! empty( $trim_at['trim_description'] )
 			) {
-				$description = explode( $trim_at, get_the_excerpt() )[0] 
-							   . '&hellip;';
+				$description = explode(
+					$trim_at['trim_description'],
+					get_the_excerpt()
+				)[0] . '&hellip;';
 			} else {
 				$description = get_the_excerpt();
 			}
@@ -115,26 +119,27 @@ class CDB_2021_Simply_Auto_SEO
 		
 		// Print meta description in head if $desc is not null.
 		if ( $description ) {
-			$description = strip_tags( $description );
+			$description = esc_html_e( strip_tags( $description ) );
 			?>
 			<meta name="description"
-				  content="<?php echo esc_attr_e( $description ); ?>">
+				  content="<?php echo $description; ?>">
 			<meta property="og:description"
-				  content="<?php echo esc_attr_e( $description ); ?>">
+				  content="<?php echo $description; ?>">
 			<?php
 		}
 		
-		$title = is_front_page()
-				 ? get_bloginfo( 'description' ) : get_the_title();
+		$title = esc_html_e(
+			is_front_page() ? get_bloginfo( 'description' ) : get_the_title()
+		);
 		?>
-		<meta property="og:title" content="<?php echo esc_attr_e( $title ); ?>">
+		<meta property="og:title" content="<?php echo $title; ?>">
 		<meta property="og:type" content="website">
 		<meta property="og:url"
-			  content="<?php echo esc_attr( home_url( $wp->request ) ); ?>">
+			  content="<?php echo esc_url( home_url( $wp->request ) ); ?>">
 		<meta property="og:site_name"
-			  content="<?php echo esc_attr_e( get_bloginfo( 'name' ) ); ?>">
+			  content="<?php echo esc_html_e( get_bloginfo( 'name' ) ); ?>">
 		<meta property="og:locale"
-			  content="<?php echo esc_attr_e( get_bloginfo( 'language' ) ); ?>">
+			  content="<?php echo esc_html_e( get_bloginfo( 'language' ) ); ?>">
 		<?php
 	}
 }
