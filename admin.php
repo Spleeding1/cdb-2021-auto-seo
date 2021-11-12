@@ -83,7 +83,7 @@ class {{PluginClass}}_Admin
 				? $options['uninstall_delete_all_data'] : false;
 		?>
 		<input id="{{plugin_snake}}_uninstall_delete_all"
-			   name="{{plugin_snake}}_options[delete_all_data]"
+			   name="{{plugin_snake}}_options[uninstall_delete_all_data]"
 			   type="checkbox"
 			   value="<?php echo esc_attr( $delete_all_data ); ?>">
 		<?php

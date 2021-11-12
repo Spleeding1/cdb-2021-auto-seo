@@ -88,6 +88,9 @@ class {{PluginClass}}
 		'version' => array(
 			'update' => false,
 		),
+		'uninstall_delete_all_data' => array(
+			'update' => false,
+		),
 	);
 
 	/**
@@ -142,7 +145,7 @@ class {{PluginClass}}
 	 */
 	protected function pluginVersionOptionIsTheLatest()
 	{
-		$options = get_option( get_plugin_option_name() );
+		$options = get_option( '{{plugin_snake}}_options' );
 	
 		if ( $options ) {
 			if (
@@ -153,9 +156,10 @@ class {{PluginClass}}
 			}
 		} else {
 			add_option(
-				get_plugin_option_name(),
+				'{{plugin_snake}}_options',
 				array(
 					'version' => $this->version,
+					'uninstall_delete_all_data' => true,
 				)
 			);
 
