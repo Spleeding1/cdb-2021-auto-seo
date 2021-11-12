@@ -33,8 +33,8 @@ class {{PluginClass}}_Admin
 			'{{Plugin Name}} Settings',
 			'{{Plugin Name}}',
 			'manage_options',
-			'{{plugin-slug}}',
-			array( $this, '{{plugin_snake}}_options_page'),
+			'{{plugin-slug}}-options',
+			array( $this, 'options_page'),
 		);
 	}
 
@@ -46,19 +46,19 @@ class {{PluginClass}}_Admin
 		register_setting(
 			'{{plugin_snake}}_options',
 			'{{plugin_snake}}_options',
-			array( $this, '{{plugin_snake}}_validate_options' ),
+			array( $this, 'validate_options' ),
 		);
 		add_settings_section(
 			'{{plugin_snake}}_section_uninstall',
 			esc_html__( 'Uninstall Settings', $this->domain ),
 			array( $this, 'settings_section_uninstall' ),
-			'{{plugin_snake}}'
+			'{{plugin-slug}}-options'
 		);
 		add_settings_field(
 			'{{plugin_snake}}_delete_all',
 			esc_html__( 'Delete all plugin data on uninstall', $this->domain ),
 			array( $this, 'uninstall_delete_all_data_field' ),
-			'{{plugin_snake}}',
+			'{{plugin-slug}}-options',
 			'{{plugin_snake}}_section_uninstall',
 		);
 	}
@@ -82,24 +82,24 @@ class {{PluginClass}}_Admin
 		$delete_all_data = isset( $options['uninstall_delete_all_data'] )
 				? $options['uninstall_delete_all_data'] : false;
 		?>
-		<input id="{{plugin_snake}}_uninstall_delete_all"
+		<input id="{{plugin_snake}}_uninstall_delete_all_data"
 			   name="{{plugin_snake}}_options[uninstall_delete_all_data]"
 			   type="checkbox"
-			   value="<?php echo esc_attr( $delete_all_data ); ?>">
+			   <?php checked( $delete_all_data, true, true ); ?>>
 		<?php
 	}
 
 	/**
 	 * Displays the {{Plugin Name}} admin page.
 	 */
-	public function {{plugin_snake}}_options_page()
+	public function options_page()
 	{
 		?>
 		<h1><?php echo esc_html__( get_admin_page_title() ); ?></h1>
 		<form action="options.php" method="post">
 			<?php
 			settings_fields( '{{plugin_snake}}_options' );
-			do_settings_sections( '{{plugin_snake}}' );
+			do_settings_sections( '{{plugin-slug}}-options' );
 			submit_button();
 			?>
 		</form>
@@ -110,8 +110,9 @@ class {{PluginClass}}_Admin
 	 * Sanitizes submitted options input.
 	 * @return array $input - submitted form data.
 	 */
-	public function {{plugin_snake}}_validate_options( $input )
+	public function validate_options( $input )
 	{
+		$input['uninstall_delete_all_data'] = isset( $input['uninstall_delete_all_data'] ) ? true : false;
 		return $input;
 	}
 }
