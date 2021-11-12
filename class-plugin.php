@@ -1,17 +1,25 @@
 <?php
 
+Find and Replace:
+{{Plugin Name}}
+{{PLUGIN_PREFIX}}
+{{NameSpace}}
+{{PluginClass}}
+{{plugin_snake}}
+{{plugin-slug}}
+
 /**
- * Plugin Name: Class Plugin (required) The name of your plugin, which will be displayed in the Plugins list in the WordPress Admin.
+ * Plugin Name: {{Plugin Name}} (required) The name of your plugin, which will be displayed in the Plugins list in the WordPress Admin.
  * Plugin URI: The home page of the plugin, which should be a unique URL, preferably on your own website. This must be unique to your plugin. You cannot use a WordPress.org URL here.
  * Description: A short description of the plugin, as displayed in the Plugins section in the WordPress Admin. Keep this description to fewer than 140 characters.
  * Version: 0.0.1
- * Requires at least: 5.8.1
+ * Requires at least: 5.8
  * Requires PHP: 7.4
  * Author: Carl David Brubaker
- * Author URI: The author’s website or profile on another website, such as WordPress.org.
+ * Author URI: https://carlbrubaker.com/
  * License: GPLv2 (or later)
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain: {{PLUGIN}}   The gettext text domain of the plugin. More information can be found in the Text Domain section of the How to Internationalize your Plugin page.
+ * Text Domain: {{PLUGIN_PREFIX}}   The gettext text domain of the plugin. More information can be found in the Text Domain section of the How to Internationalize your Plugin page.
  * Domain Path: /languages    The domain path lets WordPress know where to find the translations. More information can be found in the Domain Path section of the How to Internationalize your Plugin page.
  * Network: Whether the plugin can only be activated network-wide. Can only be set to true, and should be left out when not needed.
  */
@@ -20,11 +28,11 @@
  * filecopy
  */
 
-namespace {{PLUGIN}};
+namespace {{NameSpace}};
 
 defined( 'ABSPATH' ) or exit;
 
-$prefix = '{{PLUGIN}}_PREFIX';
+$prefix = '{{PLUGIN_PREFIX}}';
 
 if ( ! defined( $prefix . '_PATH' ) ) {
 	define( $prefix . '_PATH', plugin_dir_path( __FILE__ ) );
@@ -38,7 +46,7 @@ if ( ! defined( $prefix . '_TEXT_DOMAIN' ) ) {
 	define( $prefix . '_TEXT_DOMAIN', 'Text Domain' );
 }
 
-class {{PLUGIN}}
+class {{PluginClass}}
 {
 	/**
 	 * Plugin prefix defined above. Sets when class is contructed.
@@ -48,12 +56,12 @@ class {{PLUGIN}}
 	/**
 	 * Plugin text domain defined globally.
 	 */
-	protected string $domain = {{PLUGIN}}_TEXT_DOMAIN;
+	protected string $domain = {{PLUGIN_PREFIX}}_TEXT_DOMAIN;
 
 	/**
 	 * Plugin version defined globally.
 	 */
-	protected string $version = {{PLUGIN}}_VERSION;
+	protected string $version = {{PLUGIN_PREFIX}}_VERSION;
 
 	/**
 	 * Names of plugin options stored in the options table.
@@ -67,9 +75,8 @@ class {{PLUGIN}}
 	 * 
 	 * example:
 	 * 
-	 * $prefix = 'my_plugin';
 	 * $options = array(
-	 *     '_VERSION' => array(
+	 *     'version' => array(
 	 *         'update' => false,
 	 *     ),
 	 *     'my_option' => array(
@@ -78,7 +85,7 @@ class {{PLUGIN}}
 	 * );
 	 */
 	protected array  $options = array(
-		'_VERSION' => array(
+		'version' => array(
 			'update' => false,
 		),
 	);
@@ -135,15 +142,28 @@ class {{PLUGIN}}
 	 */
 	protected function pluginVersionOptionIsTheLatest()
 	{
-		$option_value = get_option( $this->prefix . '_VERSION' );
+		$options = get_option( get_plugin_option_name() );
 	
-		if ( $option_value === $this->version ) {
-			return true;
-		} elseif ( ! $option_value ) {
-			add_option( $this->prefix . '_VERSION', $this->version );
+		if ( $options ) {
+			if (
+				! empty( $option['version'] ) &&
+				$option['version'] === $this->version
+			) {
+				return true;
+			}
 		} else {
-			update_option( $this->prefix . '_VERSION', $this->version );
+			add_option(
+				get_plugin_option_name(),
+				array(
+					'version' => $this->version,
+				)
+			);
+
+			return false;
 		}
+
+		$options['version'] = $this->version;
+		update_option( '{{plugin_snake}}_options', $options );
 		
 		return false;
 	}
@@ -158,22 +178,31 @@ class {{PLUGIN}}
 			return;
 		}
 
+		$options = get_option( '{{plugin_snake}}_options' );
+
+		if ( ! $options ) {
+			return;
+		}
+
+		$updated = false;
 		foreach ( $this->options as $option => $setting ) {
 			$update = $setting['update'] ?? null;
 			$value  = $setting['value']  ?? null;
-			if ( empty( $update ) || empty( $value ) ) {
+			if ( ! $update || ! isset( $value ) ) {
 				continue;
 			}
 
-			$option_value = get_option( $this->prefix . $option );
+			$updated = true;
 
-			if ( $option_value === $value ) {
+			if ( $options[$option] === $value ) {
 				continue;
-			} elseif ( ! $option_value ) {
-				add_option( $this->prefix . $option, $value );
 			} else {
-				update_option( $this->prefix . $option, $value );
+				$options[$option] = $value;
 			}
+		}
+
+		if ( $updated ) {
+			update_option( '{{plugin_snake}}_options', $options );
 		}
 	}
 
@@ -242,6 +271,14 @@ class {{PLUGIN}}
 	}
 }
 
-if ( class_exists( '{{PLUGIN}}\{{PLUGIN}}' ) ) {
-	new {{PLUGIN}}( $prefix );
+if ( class_exists( '{{NameSpace}}\{{PluginClass}}' ) ) {
+	new {{PluginClass}}( $prefix );
+}
+
+if ( is_admin() ) {
+	require_once {{PLUGIN_PREFIX}}_PATH . 'admin.php';
+
+	if ( class_exists( '{{NameSpace}}\admin\{{PluginClass}}_Admin' ) ) {
+		new admin\{{PluginClass}}_Admin();
+	}
 }

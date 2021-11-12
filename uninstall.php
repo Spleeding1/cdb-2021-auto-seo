@@ -3,7 +3,7 @@
 /**
  * uninstall.php
  * 
- * Uninstalls plugin PLUGIN
+ * Uninstalls plugin {{Plugin Name}}
  * 
  * replace with filecopy
  */
@@ -11,16 +11,17 @@
 defined( 'ABSPATH' ) or exit;
 
 // exit if uninstall constant is not defined
-defined( 'WP_UNINSTALL_PLUGIN' ) or exit;
+defined( 'WP_UNINSTALL_PLUGIN' ) or die;
 
 // User wants to delete all data.
-if ( ! get_option( 'plugin_do_uninstall', false ) ) exit;
+$options = get_option( '{{plugin_snake}}_options' );
+if ( empty( $options['delete_all_data'] ) ) exit;
 
-use {{PLUGIN}}\{{PLUGIN}};
+use {{NameSpace}}\{{PluginClass}};
 
-if ( class_exists( '{{NAMESPACE}}\{{PLUGIN}}')) {
+if ( class_exists( '{{NameSpace}}\{{PluginClass}}')) {
 	
-	$plugin = new {{NAMESPACE}}\{{PLUGIN}}();
+	$plugin = new {{PluginClass}}();
 	$plugin->uninstallPlugin();
 }
 
