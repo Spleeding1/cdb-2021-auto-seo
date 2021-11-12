@@ -13,11 +13,11 @@ defined( 'ABSPATH' ) or exit;
 // exit if uninstall constant is not defined
 defined( 'WP_UNINSTALL_PLUGIN' ) or die;
 
+use {{NameSpace}}\{{PluginClass}};
+
 // User wants to delete all data.
 $options = get_option( '{{plugin_snake}}_options' );
 if ( ! empty( $options['delete_all_data'] ) ) {
-	use {{NameSpace}}\{{PluginClass}};
-	
 	if ( class_exists( '{{NameSpace}}\{{PluginClass}}')) {
 		
 		$plugin = new {{PluginClass}}();

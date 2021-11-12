@@ -265,13 +265,7 @@ class {{PluginClass}}
 	 */
 	protected function deletePluginOptions()
 	{
-		if ( empty( $this->options ) ) {
-			return;
-		}
-
-		foreach ( $this->options as $option => $setting ) {
-			delete_option( $this->prefix . $option );
-		}
+		delete_option( '{{plugin_snake}}_options' );
 	}
 }
 
