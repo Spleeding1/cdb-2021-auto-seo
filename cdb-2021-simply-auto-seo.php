@@ -119,18 +119,18 @@ class CDB_2021_Simply_Auto_SEO
 		
 		// Print meta description in head if $desc is not null.
 		if ( $description ) {
-			$description = esc_html_e( strip_tags( $description ) );
+			$description =  strip_tags( $description );
 			?>
 			<meta name="description"
-				  content="<?php echo $description; ?>">
+				  content="<?php echo esc_attr( $description ); ?>">
 			<meta property="og:description"
-				  content="<?php echo $description; ?>">
+				  content="<?php echo esc_attr( $description ); ?>">
 			<?php
 		}
 		
-		$title = esc_html_e(
-			is_front_page() ? get_bloginfo( 'description' ) : get_the_title()
-		);
+		$title = is_front_page() ?
+			get_bloginfo( 'description' ) :
+			get_the_title();
 		?>
 		<meta property="og:title" content="<?php echo $title; ?>">
 		<meta property="og:type" content="website">
