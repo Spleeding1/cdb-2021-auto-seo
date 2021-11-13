@@ -18,11 +18,6 @@ defined( 'WP_UNINSTALL_PLUGIN' ) or die;
 // User wants to delete all data.
 $options = get_option( '{{plugin_snake}}_options' );
 if ( ! empty( $options['uninstall_delete_all_data'] ) ) {
-	// if ( class_exists( '{{NameSpace}}\{{PluginClass}}')) {
-		
-		// $plugin = new {{PluginClass}}();
-		// $plugin->uninstallPlugin();
-	// }
 	delete_option( '{{plugin_snake}}_options' );
 }
 
