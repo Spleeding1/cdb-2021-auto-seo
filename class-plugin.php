@@ -181,4 +181,10 @@ if ( is_admin() ) {
 	if ( class_exists( '{{NameSpace}}\admin\{{PluginClass}}_Admin' ) ) {
 		new admin\{{PluginClass}}_Admin();
 	}
+
+	require_once {{PLUGIN_PREFIX}}_PATH . 'roles.php';
+
+	if ( class_exists( '{{NameSpace}}\roles\{{PluginClass}}_Roles' ) ) {
+		new {{PluginClass}}_Roles();
+	}
 }
