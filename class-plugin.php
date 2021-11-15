@@ -169,29 +169,6 @@ class {{PluginClass}}
 			}
 		}
 	}
-
-	/**
-	 * Deletes all plugin information on uninstall.
-	 */
-	public function uninstallPlugin()
-	{
-		$this->deletePluginOptions( '{{plugin_snake}}_options' );
-		$this->deletePluginTransients();
-	}
-
-	/**
-	 * Deletes all plugin transients listed in $this->transients.
-	 */
-	protected function deletePluginTransients()
-	{
-		if ( empty( $this->transients ) ) {
-			return;
-		}
-
-		foreach ( $this->transients as $transient => $setting ) {
-			delete_transient( $this->prefix . $transient );
-		}
-	}
 }
 
 if ( class_exists( '{{NameSpace}}\{{PluginClass}}' ) ) {
