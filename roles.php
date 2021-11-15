@@ -45,11 +45,11 @@ class {{PluginClass}}_Roles
 	public function __construct()
 	{
 		register_activation_hook(
-			{{PLUGIN_PREFIX}}_PATH,
+			{{PLUGIN_PREFIX}}_PATH . '{{plugin-slug}}.php',
 			array( $this, 'register_activation_hook_roles_and_capabilities' )
 		);
 		register_deactivation_hook(
-			{{PLUGIN_PREFIX}}_PATH,
+			{{PLUGIN_PREFIX}}_PATH . '{{plugin-slug}}.php',
 			array( $this, 'register_deactivation_hook_roles_and_capabilities' )
 		);
 	}
