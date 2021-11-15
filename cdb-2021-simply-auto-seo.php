@@ -35,9 +35,74 @@ if ( ! defined( $prefix . '_TEXT_DOMAIN') ) {
 
 class CDB_2021_Simply_Auto_SEO
 {	
-	protected string $domain = CDB_2021_SIMPLY_AUTO_SEO_TEXT_DOMAIN;
-	protected string $version = CDB_2021_SIMPLY_AUTO_SEO_VERSION;
+	/**
+	 * Plugin prefix defined above. Sets when class is contructed.
+	 */
 	protected string $prefix;
+
+	/**
+	 * Plugin text domain defined globally.
+	 */
+	protected string $domain = CDB_2021_SIMPLY_AUTO_SEO_TEXT_DOMAIN;
+
+	/**
+	 * Plugin version defined globally.
+	 */
+	protected string $version = CDB_2021_SIMPLY_AUTO_SEO_VERSION;
+
+	/**
+	 * Names of plugin options stored in the options table.
+	 * 
+	 * Used to delete_option on uninstall.
+	 * - List all possible options that can be set to ensure proper cleanup.
+	 * 
+	 * Can be used to add_option and update_option if 'update' => true.
+	 * 
+	 * $this->prefix is added to key on creation and deletion.
+	 * 
+	 * example:
+	 * 
+	 * $options = array(
+	 *     'version' => array(
+	 *         'update' => false,
+	 *     ),
+	 *     'my_option' => array(
+	 *         'value' => 'My Value',
+	 *         'update' => true),
+	 * );
+	 */
+	protected array  $options = array(
+		'version' => array(
+			'update' => false,
+		),
+		'uninstall_delete_all_data' => array(
+			'update' => false,
+		),
+		'trim_description' => array(
+			'update' => false,
+		)
+	);
+
+	/**
+	 * Names of plugin transients stored in the transients table.
+	 * 
+	 * Used to delete_transient on uninstall.
+	 * - List all possible options that can be set to ensure proper cleanup.
+	 * 
+	 * Can be used to set_transient if 'update' => true.
+	 * 
+	 * $this->prefix is added to key on creation and deletion.
+	 * 
+	 * example:
+	 * 
+	 * $prefix = 'my_plugin';
+	 * $transients = array(
+	 *     'my_transient' => array(
+	 *         'value' => 'My Value',
+	 *         'update' => true),
+	 * );
+	 */
+	protected array  $transients = array();
 
 	public function __construct( string $prefix )
 	{
@@ -48,12 +113,15 @@ class CDB_2021_Simply_Auto_SEO
 	}
 	
 	/**
-	 * Perform actions if wp_option(CDB_2021_SIMPLY_AUTO_SEO_VERSION) does not match $this->version.
+	 * Perform actions if $options['version'] does not match $this->version.
 	 */
 	public function activateOrUpdate()
 	{
 		if ( ! $this->pluginVersionOptionIsTheLatest() ) {
 			// Do stuff if version has changed.
+			$this->updatePluginOptions();
+			$this->updatePluginTransients();
+			delete_option( 'CDB_2021_SIMPLY_AUTO_SEO_VERSION' );
 		}
 	}
 	
@@ -65,21 +133,98 @@ class CDB_2021_Simply_Auto_SEO
 	 */
 	public function pluginVersionOptionIsTheLatest()
 	{
-		$option_value = get_option( $this->prefix . '_VERSION' );
-		
-		if ( $option_value === $this->version ) {
-			return true;
-		}
-		
-		if ( $option_value === false ) {
-			add_option( $this->prefix . '_VERSION', $this->version );
+		$options = get_option( 'cdb_2021_simply_auto_seo_options' );
+	
+		if ( $options ) {
+			if (
+				! empty( $option['version'] ) &&
+				$option['version'] === $this->version
+			) {
+				return true;
+			}
 		} else {
-			update_option( $this->prefix . '_VERSION', $this->version );
+			add_option(
+				'cdb_2021_simply_auto_seo_options',
+				array(
+					'version' => $this->version,
+					'uninstall_delete_all_data' => true,
+				)
+			);
+
+			return false;
 		}
+
+		$options['version'] = $this->version;
+		update_option( 'cdb_2021_simply_auto_seo_options', $options );
 		
 		return false;
 	}
-	
+
+	/**
+	 * Creates or updates plugin options on the options table, using
+	 * $this->options array.
+	 */
+	protected function updatePluginOptions()
+	{
+		if ( empty( $this->options ) ) {
+			return;
+		}
+
+		$options = get_option( 'cdb_2021_simply_auto_seo_options' );
+
+		if ( ! $options ) {
+			return;
+		}
+
+		$updated = false;
+		foreach ( $this->options as $option => $setting ) {
+			$update = $setting['update'] ?? null;
+			$value  = $setting['value']  ?? null;
+			if ( ! $update || ! isset( $value ) ) {
+				continue;
+			}
+
+			$updated = true;
+
+			if ( $options[$option] === $value ) {
+				continue;
+			} else {
+				$options[$option] = $value;
+			}
+		}
+
+		if ( $updated ) {
+			update_option( 'cdb_2021_simply_auto_seo_options', $options );
+		}
+	}
+
+	/**
+	 * Sets plugin transients on the options table, using
+	 * $this->transients array.
+	 */
+	protected function updatePluginTransients()
+	{
+		if ( empty( $this->transients ) ) {
+			return;
+		}
+
+		foreach ( $this->transient as $transient => $setting ) {
+			$update = $setting['update'] ?? null;
+			$value  = $setting['value']  ?? null;
+			if ( empty( $update ) || empty( $value ) ) {
+				continue;
+			}
+
+			$transient_value = get_transient( $this->prefix . $transient );
+
+			if ( $transient_value === $value ) {
+				continue;
+			} else {
+				set_transient( $this->prefix . $transient, $value );
+			}
+		}
+	}
+
 	/**
 	 * Adds SEO meta tags to head if current page. 
 	 * 
@@ -93,33 +238,26 @@ class CDB_2021_Simply_Auto_SEO
 		if ( ! get_post_status() === 'public' ) {
 			return;
 		}
-		
+
 		global $wp;
 		$description = null;
-		
-		if ( is_singular() || is_front_page() ) {
 
-			// Trim description if option is set.
-			$trim_at = get_option( 'cdb_2021_simply_auto_seo_options' );
-			if (
-				array_key_exists( 'trim_description', $trim_at ) &&
-				! empty( $trim_at['trim_description'] )
-			) {
+		if ( is_singular() || is_front_page() ) {
+			$options = get_option ('cdb_2021_simply_auto_seo_options');
+			if ( ! empty( $options['trim_description'] ) ) {
 				$description = explode(
-					$trim_at['trim_description'],
+					$options['trim_description'],
 					get_the_excerpt()
 				)[0] . '&hellip;';
 			} else {
 				$description = get_the_excerpt();
 			}
-		} else if ( is_category() || is_tag() || is_author()
-					|| is_post_type_archive() || is_tax()) {
+		} else if ( is_category() || is_tag() || is_author() || is_post_type_archive() || is_tax()) {
 			$description = get_the_archive_description();
 		}
-		
-		// Print meta description in head if $desc is not null.
-		if ( $description ) {
-			$description = esc_html_e( strip_tags( $description ) );
+
+		if ( ! empty( $description ) ) {
+			$description = __( esc_attr( strip_tags( $description ) ) );
 			?>
 			<meta name="description"
 				  content="<?php echo $description; ?>">
@@ -127,26 +265,43 @@ class CDB_2021_Simply_Auto_SEO
 				  content="<?php echo $description; ?>">
 			<?php
 		}
-		
-		$title = esc_html_e(
-			is_front_page() ? get_bloginfo( 'description' ) : get_the_title()
-		);
+
+		$title = esc_attr( is_front_page() ? get_bloginfo( 'description' ) : get_the_title() );
+
+		if ( ! empty( $title ) ) {
+			?>
+			<meta property="og:title" content="<?php echo __( $title ); ?>">
+			<?php
+		}
 		?>
-		<meta property="og:title" content="<?php echo $title; ?>">
+
 		<meta property="og:type" content="website">
 		<meta property="og:url"
 			  content="<?php echo esc_url( home_url( $wp->request ) ); ?>">
-		<meta property="og:site_name"
-			  content="<?php echo esc_html_e( get_bloginfo( 'name' ) ); ?>">
-		<meta property="og:locale"
-			  content="<?php echo esc_html_e( get_bloginfo( 'language' ) ); ?>">
+		
 		<?php
+		$site_name = esc_attr( get_bloginfo( 'name' ) );
+
+		if ( ! empty( $site_name ) ) {
+			?>
+			<meta property="og:site_name"
+			  content="<?php echo __( $site_name ); ?>">
+			<?php
+		}
+		
+		$language = esc_attr( get_bloginfo( 'language' ) );
+
+		if ( ! empty( $language ) ) {
+			?>
+			<meta property="og:locale"
+			  content="<?php echo __( $language ); ?>">
+			<?php
+		}
 	}
+
 }
 
-if ( class_exists( 'cdb_2021_Simply_Auto_SEO\CDB_2021_Simply_Auto_SEO' ) ) {
-	new CDB_2021_Simply_Auto_SEO( $prefix );
-}
+
 
 if ( is_admin() ) {
 	require_once CDB_2021_SIMPLY_AUTO_SEO_PATH . 'admin.php';
@@ -154,5 +309,8 @@ if ( is_admin() ) {
 	if ( class_exists( 'cdb_2021_Simply_Auto_SEO\admin\CDB_2021_Simply_Auto_SEO_Admin' ) ) {
 		new admin\CDB_2021_Simply_Auto_SEO_Admin();
 	}
+} else {
+	if ( class_exists( 'cdb_2021_Simply_Auto_SEO\CDB_2021_Simply_Auto_SEO' ) ) {
+		new CDB_2021_Simply_Auto_SEO( $prefix );
+	}
 }
-

@@ -61,8 +61,14 @@ class CDB_2021_Simply_Auto_SEO_Admin
 			'cdb-2021-simply-auto-seo-options',
 			'cdb_2021_simply_auto_seo_section_description',
 		);
+		add_settings_section(
+			'cdb_2021_simply_auto_seo_section_uninstall',
+			esc_html__( 'Uninstall Settings', $this->domain ),
+			array( $this, 'settings_section_uninstall' ),
+			'cdb-2021-simply-auto-seo-options'
+		);
 		add_settings_field(
-			'{{plugin_snake}}_delete_all',
+			'cdb_2021_simply_auto_seo_uninstall_delete_all_data',
 			esc_html__( 'Delete all plugin data on uninstall', $this->domain ),
 			array( $this, 'uninstall_delete_all_data_field' ),
 			'cdb-2021-simply-auto-seo-options',
@@ -153,7 +159,7 @@ class CDB_2021_Simply_Auto_SEO_Admin
 		}
 
 		$input['uninstall_delete_all_data'] = isset( $input['uninstall_delete_all_data'] ) ? true : false;
-		
+
 		return $input;
 	}
 }
