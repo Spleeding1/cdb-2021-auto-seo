@@ -64,36 +64,6 @@ class {{PluginClass}}
 	protected string $version = {{PLUGIN_PREFIX}}_VERSION;
 
 	/**
-	 * Names of plugin options stored in the options table.
-	 * 
-	 * Used to delete_option on uninstall.
-	 * - List all possible options that can be set to ensure proper cleanup.
-	 * 
-	 * Can be used to add_option and update_option if 'update' => true.
-	 * 
-	 * $this->prefix is added to key on creation and deletion.
-	 * 
-	 * example:
-	 * 
-	 * $options = array(
-	 *     'version' => array(
-	 *         'update' => false,
-	 *     ),
-	 *     'my_option' => array(
-	 *         'value' => 'My Value',
-	 *         'update' => true),
-	 * );
-	 */
-	protected array  $options = array(
-		'version' => array(
-			'update' => false,
-		),
-		'uninstall_delete_all_data' => array(
-			'update' => false,
-		),
-	);
-
-	/**
 	 * Names of plugin transients stored in the transients table.
 	 * 
 	 * Used to delete_transient on uninstall.
@@ -123,14 +93,12 @@ class {{PluginClass}}
 	
 	
 	/**
-	 * Perform actions if wp_option( {{PLUGIN}}_VERSION ) does not match
-	 * $this->version.
+	 * Perform actions if $options['version'] does not match $this->version.
 	 */
 	public function activateOrUpdate()
 	{
 		if ( ! $this->pluginVersionOptionIsTheLatest() ) {
 			// Do stuff if version has changed.
-			$this->updatePluginOptions();
 			$this->updatePluginTransients();
 			
 			flush_rewrite_rules();
@@ -142,6 +110,9 @@ class {{PluginClass}}
 	 * @return bool
 	 * true if plugin version matches stored version.
 	 * false if plugin version does not match or no option stored.
+	 * 
+	 * Use this method to set and update
+	 * array {{plugin_snake}}_options.
 	 */
 	protected function pluginVersionOptionIsTheLatest()
 	{
@@ -173,44 +144,6 @@ class {{PluginClass}}
 	}
 
 	/**
-	 * Creates or updates plugin options on the options table, using
-	 * $this->options array.
-	 */
-	protected function updatePluginOptions()
-	{
-		if ( empty( $this->options ) ) {
-			return;
-		}
-
-		$options = get_option( '{{plugin_snake}}_options' );
-
-		if ( ! $options ) {
-			return;
-		}
-
-		$updated = false;
-		foreach ( $this->options as $option => $setting ) {
-			$update = $setting['update'] ?? null;
-			$value  = $setting['value']  ?? null;
-			if ( ! $update || ! isset( $value ) ) {
-				continue;
-			}
-
-			$updated = true;
-
-			if ( $options[$option] === $value ) {
-				continue;
-			} else {
-				$options[$option] = $value;
-			}
-		}
-
-		if ( $updated ) {
-			update_option( '{{plugin_snake}}_options', $options );
-		}
-	}
-
-	/**
 	 * Sets plugin transients on the options table, using
 	 * $this->transients array.
 	 */
@@ -234,6 +167,29 @@ class {{PluginClass}}
 			} else {
 				set_transient( $this->prefix . $transient, $value );
 			}
+		}
+	}
+
+	/**
+	 * Deletes all plugin information on uninstall.
+	 */
+	public function uninstallPlugin()
+	{
+		$this->deletePluginOptions( '{{plugin_snake}}_options' );
+		$this->deletePluginTransients();
+	}
+
+	/**
+	 * Deletes all plugin transients listed in $this->transients.
+	 */
+	protected function deletePluginTransients()
+	{
+		if ( empty( $this->transients ) ) {
+			return;
+		}
+
+		foreach ( $this->transients as $transient => $setting ) {
+			delete_transient( $this->prefix . $transient );
 		}
 	}
 }

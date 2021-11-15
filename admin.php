@@ -6,6 +6,8 @@ defined( 'ABSPATH' ) or exit;
 
 /**
  * Handles admin options page for {{Plugin Name}}.
+ * 
+ * replace with filecopy
  */
 
 class {{PluginClass}}_Admin
@@ -55,7 +57,7 @@ class {{PluginClass}}_Admin
 			'{{plugin-slug}}-options'
 		);
 		add_settings_field(
-			'{{plugin_snake}}_delete_all',
+			'{{plugin_snake}}_uninstall_delete_all_data',
 			esc_html__( 'Delete all plugin data on uninstall', $this->domain ),
 			array( $this, 'uninstall_delete_all_data_field' ),
 			'{{plugin-slug}}-options',

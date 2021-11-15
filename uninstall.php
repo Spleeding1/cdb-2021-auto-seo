@@ -13,9 +13,13 @@ defined( 'ABSPATH' ) or exit;
 // exit if uninstall constant is not defined
 defined( 'WP_UNINSTALL_PLUGIN' ) or die;
 
+require_once {{PLUGIN_PREFIX}}_PATH . '{{plugin-slug}}.php';
+
 // User wants to delete all data.
 $options = get_option( '{{plugin_snake}}_options' );
 if ( ! empty( $options['uninstall_delete_all_data'] ) ) {
+	$plugin = new {{PluginClass}}();
+	$plugin->uninstallPlugin();
 	delete_option( '{{plugin_snake}}_options' );
 }
 
