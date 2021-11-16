@@ -4,7 +4,7 @@
  * Plugin Name: Simply Auto SEO
  * Plugin URI: https://github.com/Spleeding1/cdb-2021-simply-auto-seo
  * Description: Automatically adds SEO tags to &lt;head&gt;. Does not display any field inputs in WordPress Editor. name="description" can be edited through post excerpts and taxonomy descriptions.
- * Version: 1.0.1
+ * Version: 1.1.0
  * Requires at least: 5.8
  * Requires PHP: 7.4
  * Author: Carl David Brubaker
@@ -17,6 +17,8 @@
 
 namespace cdb_2021_Simply_Auto_SEO;
 
+use function current_user_can;
+
 defined( 'ABSPATH' ) or exit;
 
 $prefix = 'CDB_2021_SIMPLY_AUTO_SEO';
@@ -26,7 +28,7 @@ if ( ! defined( $prefix . '_PATH' ) ) {
 }
 
 if ( ! defined($prefix . '_VERSION') ) {
-	define( $prefix . '_VERSION', '1.0.1' );
+	define( $prefix . '_VERSION', '1.1.0' );
 }
 
 if ( ! defined( $prefix . '_TEXT_DOMAIN') ) {
@@ -35,9 +37,41 @@ if ( ! defined( $prefix . '_TEXT_DOMAIN') ) {
 
 class CDB_2021_Simply_Auto_SEO
 {	
-	protected string $domain = CDB_2021_SIMPLY_AUTO_SEO_TEXT_DOMAIN;
-	protected string $version = CDB_2021_SIMPLY_AUTO_SEO_VERSION;
+	/**
+	 * Plugin prefix defined above. Sets when class is contructed.
+	 */
 	protected string $prefix;
+
+	/**
+	 * Plugin text domain defined globally.
+	 */
+	protected string $domain = CDB_2021_SIMPLY_AUTO_SEO_TEXT_DOMAIN;
+
+	/**
+	 * Plugin version defined globally.
+	 */
+	protected string $version = CDB_2021_SIMPLY_AUTO_SEO_VERSION;
+
+	/**
+	 * Names of plugin transients stored in the transients table.
+	 * 
+	 * Used to delete_transient on uninstall.
+	 * - List all possible options that can be set to ensure proper cleanup.
+	 * 
+	 * Can be used to set_transient if 'update' => true.
+	 * 
+	 * $this->prefix is added to key on creation and deletion.
+	 * 
+	 * example:
+	 * 
+	 * $prefix = 'my_plugin';
+	 * $transients = array(
+	 *     'my_transient' => array(
+	 *         'value' => 'My Value',
+	 *         'update' => true),
+	 * );
+	 */
+	protected array  $transients = array();
 
 	public function __construct( string $prefix )
 	{
@@ -48,12 +82,14 @@ class CDB_2021_Simply_Auto_SEO
 	}
 	
 	/**
-	 * Perform actions if wp_option(CDB_2021_SIMPLY_AUTO_SEO_VERSION) does not match $this->version.
+	 * Perform actions if $options['version'] does not match $this->version.
 	 */
 	public function activateOrUpdate()
 	{
 		if ( ! $this->pluginVersionOptionIsTheLatest() ) {
 			// Do stuff if version has changed.
+			$this->updatePluginTransients();
+			delete_option( 'CDB_2021_SIMPLY_AUTO_SEO_VERSION' );
 		}
 	}
 	
@@ -62,24 +98,66 @@ class CDB_2021_Simply_Auto_SEO
 	 * @return bool
 	 * true if plugin version matches stored version.
 	 * false if plugin version does not match or no option stored.
+	 * 
+	 * Use this method to set and update
+	 * array cdb_2021_simply_auto_seo_options.
 	 */
 	public function pluginVersionOptionIsTheLatest()
 	{
-		$option_value = get_option( $this->prefix . '_VERSION' );
-		
-		if ( $option_value === $this->version ) {
-			return true;
-		}
-		
-		if ( $option_value === false ) {
-			add_option( $this->prefix . '_VERSION', $this->version );
+		$options = get_option( 'cdb_2021_simply_auto_seo_options' );
+	
+		if ( $options ) {
+			if (
+				! empty( $option['version'] ) &&
+				$option['version'] === $this->version
+			) {
+				return true;
+			}
 		} else {
-			update_option( $this->prefix . '_VERSION', $this->version );
+			add_option(
+				'cdb_2021_simply_auto_seo_options',
+				array(
+					'version' => $this->version,
+					'uninstall_delete_all_data' => true,
+				)
+			);
+
+			return false;
 		}
+
+		$options['version'] = $this->version;
+		update_option( 'cdb_2021_simply_auto_seo_options', $options );
 		
 		return false;
 	}
-	
+
+	/**
+	 * Sets plugin transients on the options table, using
+	 * $this->transients array.
+	 */
+	protected function updatePluginTransients()
+	{
+		if ( empty( $this->transients ) ) {
+			return;
+		}
+
+		foreach ( $this->transient as $transient => $setting ) {
+			$update = $setting['update'] ?? null;
+			$value  = $setting['value']  ?? null;
+			if ( empty( $update ) || empty( $value ) ) {
+				continue;
+			}
+
+			$transient_value = get_transient( $this->prefix . $transient );
+
+			if ( $transient_value === $value ) {
+				continue;
+			} else {
+				set_transient( $this->prefix . $transient, $value );
+			}
+		}
+	}
+
 	/**
 	 * Adds SEO meta tags to head if current page. 
 	 * 
@@ -93,33 +171,29 @@ class CDB_2021_Simply_Auto_SEO
 		if ( ! get_post_status() === 'public' ) {
 			return;
 		}
-		
+
 		global $wp;
 		$description = null;
-		
-		if ( is_singular() || is_front_page() ) {
 
-			// Trim description if option is set.
-			$trim_at = get_option( 'cdb_2021_simply_auto_seo_options' );
-			if (
-				array_key_exists( 'trim_description', $trim_at ) &&
-				! empty( $trim_at['trim_description'] )
-			) {
+		if ( is_singular() || is_front_page() ) {
+			$options = get_option ('cdb_2021_simply_auto_seo_options');
+			if ( ! empty( $options['trim_description'] ) ) {
 				$description = explode(
-					$trim_at['trim_description'],
+					$options['trim_description'],
 					get_the_excerpt()
 				)[0] . '&hellip;';
 			} else {
 				$description = get_the_excerpt();
 			}
-		} else if ( is_category() || is_tag() || is_author()
-					|| is_post_type_archive() || is_tax()) {
+		} else if ( is_category() || is_tag() || is_author() || is_post_type_archive() || is_tax()) {
 			$description = get_the_archive_description();
 		}
-		
-		// Print meta description in head if $desc is not null.
-		if ( $description ) {
-			$description =  strip_tags( $description );
+
+		if ( ! empty( $description ) ) {
+			$description = esc_attr__(
+				strip_tags( $description ),
+				$this->domain
+			);
 			?>
 			<meta name="description"
 				  content="<?php echo esc_attr( $description ); ?>">
@@ -127,25 +201,54 @@ class CDB_2021_Simply_Auto_SEO
 				  content="<?php echo esc_attr( $description ); ?>">
 			<?php
 		}
-		
-		$title = is_front_page() ?
-			get_bloginfo( 'description' ) :
-			get_the_title();
+
+		$title = esc_attr__(
+			is_front_page() ? get_bloginfo( 'description' ) : get_the_title(),
+			$this->domain
+		);
+
+		if ( ! empty( $title ) ) {
+			?>
+			<meta property="og:title" content="<?php echo $title; ?>">
+			<?php
+		}
 		?>
-		<meta property="og:title" content="<?php echo $title; ?>">
+
 		<meta property="og:type" content="website">
 		<meta property="og:url"
 			  content="<?php echo esc_url( home_url( $wp->request ) ); ?>">
-		<meta property="og:site_name"
-			  content="<?php echo esc_html_e( get_bloginfo( 'name' ) ); ?>">
-		<meta property="og:locale"
-			  content="<?php echo esc_html_e( get_bloginfo( 'language' ) ); ?>">
+		
 		<?php
+		$site_name = esc_attr__( get_bloginfo( 'name' ), $this->domain );
+
+		if ( ! empty( $site_name ) ) {
+			?>
+			<meta property="og:site_name"
+			  content="<?php echo $site_name; ?>">
+			<?php
+		}
+		
+		$language = esc_attr( get_bloginfo( 'language' ) );
+
+		if ( ! empty( $language ) ) {
+			?>
+			<meta property="og:locale"
+			  content="<?php echo $language; ?>">
+			<?php
+		}
 	}
 }
 
-if ( class_exists( 'cdb_2021_Simply_Auto_SEO\CDB_2021_Simply_Auto_SEO' ) ) {
-	new CDB_2021_Simply_Auto_SEO( $prefix );
+require_once CDB_2021_SIMPLY_AUTO_SEO_PATH . 'roles.php';
+
+if ( class_exists( 'cdb_2021_Simply_Auto_SEO\roles\CDB_2021_Simply_Auto_SEO_Roles' ) ) {
+	$roles = new roles\CDB_2021_Simply_Auto_SEO_Roles();
+
+	$new_role = get_role( 'simply_auto_seo_admin' );
+
+	if ( empty( $new_role ) ) {
+		$roles->addOrRemoveRolesAndCapabilities();
+	}
 }
 
 if ( is_admin() ) {
@@ -154,5 +257,8 @@ if ( is_admin() ) {
 	if ( class_exists( 'cdb_2021_Simply_Auto_SEO\admin\CDB_2021_Simply_Auto_SEO_Admin' ) ) {
 		new admin\CDB_2021_Simply_Auto_SEO_Admin();
 	}
+} else {
+	if ( class_exists( 'cdb_2021_Simply_Auto_SEO\CDB_2021_Simply_Auto_SEO' ) ) {
+		new CDB_2021_Simply_Auto_SEO( $prefix );
+	}
 }
-
