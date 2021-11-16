@@ -69,42 +69,53 @@ class {{PluginClass}}_Roles
 
 	public function addOrRemoveRolesAndCapabilities( bool $remove = false )
 	{
-		foreach ( $this->roles as $role_snake => $role_name ) {
-			if ( $remove ) {
-				remove_role( $role_snake, $role_name );
-			} else {
-				add_role( $role_snake, $role_name );
-			}
-		}
+		if ( ! empty( $this->roles ) ) {
+			foreach ( $this->roles as $role_snake => $role_name ) {
+				if ( $remove ) {
+					remove_role( $role_snake, $role_name );
+				} else {
+					add_role( $role_snake, $role_name );
 
-		unset( $role_snake, $role_name );
+					/**
+					 * Needed to access WP Admin.
+					 */
+					$role = get_role( $role_snake );
 
-		foreach ( $this->capabilities as $c ) {
-			$roles = ( is_array( $c['roles'] ) ) ?
-				$c['roles'] :
-				array( $c['roles'] );
-
-			$capabilities = ( is_array( $c['capabilities'] ) ) ?
-				$c['capabilities'] :
-				array( $c['capabilities'] );
-
-			foreach ($roles as $the_role ) {
-				$role = get_role( $the_role );
-
-				if ( empty( $role ) ) {
-					continue;
-				}
-
-				foreach ( $capabilities as $capability ) {
-					if ( $remove ) {
-						$role->remove_cap( $capability );
-					} else {
-						$role->add_cap( $capability );
+					if ( ! empty( $role ) ) {
+						$role->add_cap( 'read' );
 					}
 				}
 			}
+			unset( $role_snake, $role_name );
 		}
 
-		unset( $roles, $the_role, $role, $c, $capabilities, $capability );
+		if ( ! empty( $this->capabilities ) ) {
+			foreach ( $this->capabilities as $c ) {
+				$roles = ( is_array( $c['roles'] ) ) ?
+					$c['roles'] :
+					array( $c['roles'] );
+
+				$capabilities = ( is_array( $c['capabilities'] ) ) ?
+					$c['capabilities'] :
+					array( $c['capabilities'] );
+
+				foreach ($roles as $the_role ) {
+					$role = get_role( $the_role );
+
+					if ( empty( $role ) ) {
+						continue;
+					}
+
+					foreach ( $capabilities as $capability ) {
+						if ( $remove ) {
+							$role->remove_cap( $capability );
+						} else {
+							$role->add_cap( $capability );
+						}
+					}
+				}
+			}
+			unset( $roles, $the_role, $role, $c, $capabilities, $capability );
+		}
 	}
 }
