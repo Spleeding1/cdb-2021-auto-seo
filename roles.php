@@ -86,7 +86,7 @@ class {{PluginClass}}_Roles
 					}
 				}
 			}
-			unset( $role_snake, $role_name );
+			unset( $role_snake, $role_name, $role );
 		}
 
 		if ( ! empty( $this->capabilities ) ) {
