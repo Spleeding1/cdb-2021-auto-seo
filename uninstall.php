@@ -14,10 +14,8 @@ defined( 'ABSPATH' ) or exit;
 // exit if uninstall constant is not defined
 defined( 'WP_UNINSTALL_PLUGIN' ) or die;
 
-// use TestPlugin\TestClass;
-
 // User wants to delete all data.
-$options = get_option( 'test_snake_options' );
+$options = get_option( 'cdb_2021_simply_auto_seo_options' );
 if ( ! empty( $options['uninstall_delete_all_data'] ) ) {
-	delete_option( 'test_snake_options' );
+	delete_option( 'cdb_2021_simply_auto_seo_options' );
 }

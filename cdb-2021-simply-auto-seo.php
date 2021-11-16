@@ -17,6 +17,8 @@
 
 namespace cdb_2021_Simply_Auto_SEO;
 
+use function current_user_can;
+
 defined( 'ABSPATH' ) or exit;
 
 $prefix = 'CDB_2021_SIMPLY_AUTO_SEO';
@@ -49,39 +51,6 @@ class CDB_2021_Simply_Auto_SEO
 	 * Plugin version defined globally.
 	 */
 	protected string $version = CDB_2021_SIMPLY_AUTO_SEO_VERSION;
-
-	/**
-	 * Names of plugin options stored in the options table.
-	 * 
-	 * Used to delete_option on uninstall.
-	 * - List all possible options that can be set to ensure proper cleanup.
-	 * 
-	 * Can be used to add_option and update_option if 'update' => true.
-	 * 
-	 * $this->prefix is added to key on creation and deletion.
-	 * 
-	 * example:
-	 * 
-	 * $options = array(
-	 *     'version' => array(
-	 *         'update' => false,
-	 *     ),
-	 *     'my_option' => array(
-	 *         'value' => 'My Value',
-	 *         'update' => true),
-	 * );
-	 */
-	protected array  $options = array(
-		'version' => array(
-			'update' => false,
-		),
-		'uninstall_delete_all_data' => array(
-			'update' => false,
-		),
-		'trim_description' => array(
-			'update' => false,
-		)
-	);
 
 	/**
 	 * Names of plugin transients stored in the transients table.
@@ -119,7 +88,6 @@ class CDB_2021_Simply_Auto_SEO
 	{
 		if ( ! $this->pluginVersionOptionIsTheLatest() ) {
 			// Do stuff if version has changed.
-			$this->updatePluginOptions();
 			$this->updatePluginTransients();
 			delete_option( 'CDB_2021_SIMPLY_AUTO_SEO_VERSION' );
 		}
@@ -130,6 +98,9 @@ class CDB_2021_Simply_Auto_SEO
 	 * @return bool
 	 * true if plugin version matches stored version.
 	 * false if plugin version does not match or no option stored.
+	 * 
+	 * Use this method to set and update
+	 * array {{plugin_snake}}_options.
 	 */
 	public function pluginVersionOptionIsTheLatest()
 	{
@@ -158,44 +129,6 @@ class CDB_2021_Simply_Auto_SEO
 		update_option( 'cdb_2021_simply_auto_seo_options', $options );
 		
 		return false;
-	}
-
-	/**
-	 * Creates or updates plugin options on the options table, using
-	 * $this->options array.
-	 */
-	protected function updatePluginOptions()
-	{
-		if ( empty( $this->options ) ) {
-			return;
-		}
-
-		$options = get_option( 'cdb_2021_simply_auto_seo_options' );
-
-		if ( ! $options ) {
-			return;
-		}
-
-		$updated = false;
-		foreach ( $this->options as $option => $setting ) {
-			$update = $setting['update'] ?? null;
-			$value  = $setting['value']  ?? null;
-			if ( ! $update || ! isset( $value ) ) {
-				continue;
-			}
-
-			$updated = true;
-
-			if ( $options[$option] === $value ) {
-				continue;
-			} else {
-				$options[$option] = $value;
-			}
-		}
-
-		if ( $updated ) {
-			update_option( 'cdb_2021_simply_auto_seo_options', $options );
-		}
 	}
 
 	/**
@@ -257,7 +190,10 @@ class CDB_2021_Simply_Auto_SEO
 		}
 
 		if ( ! empty( $description ) ) {
-			$description = __( esc_attr( strip_tags( $description ) ) );
+			$description = esc_attr__(
+				strip_tags( $description ),
+				$this->domain
+			);
 			?>
 			<meta name="description"
 				  content="<?php echo $description; ?>">
@@ -266,11 +202,14 @@ class CDB_2021_Simply_Auto_SEO
 			<?php
 		}
 
-		$title = esc_attr( is_front_page() ? get_bloginfo( 'description' ) : get_the_title() );
+		$title = esc_attr__(
+			is_front_page() ? get_bloginfo( 'description' ) : get_the_title(),
+			$this->domain
+		);
 
 		if ( ! empty( $title ) ) {
 			?>
-			<meta property="og:title" content="<?php echo __( $title ); ?>">
+			<meta property="og:title" content="<?php echo $title; ?>">
 			<?php
 		}
 		?>
@@ -280,12 +219,12 @@ class CDB_2021_Simply_Auto_SEO
 			  content="<?php echo esc_url( home_url( $wp->request ) ); ?>">
 		
 		<?php
-		$site_name = esc_attr( get_bloginfo( 'name' ) );
+		$site_name = esc_attr__( get_bloginfo( 'name' ), $this->domain );
 
 		if ( ! empty( $site_name ) ) {
 			?>
 			<meta property="og:site_name"
-			  content="<?php echo __( $site_name ); ?>">
+			  content="<?php echo $site_name; ?>">
 			<?php
 		}
 		
@@ -294,14 +233,23 @@ class CDB_2021_Simply_Auto_SEO
 		if ( ! empty( $language ) ) {
 			?>
 			<meta property="og:locale"
-			  content="<?php echo __( $language ); ?>">
+			  content="<?php echo $language; ?>">
 			<?php
 		}
 	}
-
 }
 
+require_once CDB_2021_SIMPLY_AUTO_SEO_PATH . 'roles.php';
 
+if ( class_exists( 'cdb_2021_Simply_Auto_SEO\roles\CDB_2021_Simply_Auto_SEO_Roles' ) ) {
+	$roles = new roles\CDB_2021_Simply_Auto_SEO_Roles();
+
+	$new_role = get_role( 'simply_auto_seo_admin' );
+
+	if ( empty( $new_role ) ) {
+		$roles->addOrRemoveRolesAndCapabilities();
+	}
+}
 
 if ( is_admin() ) {
 	require_once CDB_2021_SIMPLY_AUTO_SEO_PATH . 'admin.php';

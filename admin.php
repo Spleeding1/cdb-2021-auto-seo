@@ -5,6 +5,11 @@ namespace cdb_2021_Simply_Auto_SEO\admin;
 defined( 'ABSPATH' ) or exit;
 
 /**
+ * Simply Auto SEO
+ * admin.php
+ * Copyright (c) 2021 by Carl David Brubaker
+ * All Rights Reserved
+ * 
  * Handles admin options page for Simply Auto SEO.
  */
 
@@ -29,13 +34,29 @@ class CDB_2021_Simply_Auto_SEO_Admin
 	 */
 	public function add_action_admin_settings_page()
 	{
-		add_options_page(
-			'Simply Auto SEO Settings',
-			'Simply Auto SEO',
-			'manage_options',
-			'cdb-2021-simply-auto-seo-options',
-			array( $this, 'options_page'),
-		);
+		if ( ! current_user_can( 'simply_auto_seo_settings' ) ) {
+			return;
+		}
+
+		if ( current_user_can( 'manage_options' ) ) {
+			add_options_page(
+				'Simply Auto SEO Settings',
+				'Simply Auto SEO',
+				'manage_options',
+				'cdb-2021-simply-auto-seo-options',
+				array( $this, 'options_page'),
+			);
+		} else {
+			add_menu_page(
+				esc_html__('MyPlugin Settings', 'myplugin'),
+				esc_html__('MyPlugin', 'myplugin'),
+				'simply_auto_seo_settings',
+				'cdb-2021-simply-auto-seo-options',
+				array( $this, 'options_page'),
+				'dashicons-admin-generic',
+				null
+			);
+		}
 	}
 
 	/**
