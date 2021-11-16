@@ -5,7 +5,7 @@ namespace cdb_2021_Simply_Auto_SEO\admin;
 defined( 'ABSPATH' ) or exit;
 
 /**
- * Simply Auto SEO
+ * @package Simply Auto SEO
  * admin.php
  * Copyright (c) 2021 by Carl David Brubaker
  * All Rights Reserved
@@ -40,16 +40,16 @@ class CDB_2021_Simply_Auto_SEO_Admin
 
 		if ( current_user_can( 'manage_options' ) ) {
 			add_options_page(
-				'Simply Auto SEO Settings',
-				'Simply Auto SEO',
+				esc_html__( 'Simply Auto SEO Settings', $this->domain ),
+				esc_html__( 'Simply Auto SEO', $this->domain ),
 				'manage_options',
 				'cdb-2021-simply-auto-seo-options',
 				array( $this, 'options_page'),
 			);
 		} else {
 			add_menu_page(
-				esc_html__('MyPlugin Settings', 'myplugin'),
-				esc_html__('MyPlugin', 'myplugin'),
+				esc_html__( 'Simply Auto SEO Settings', $this->domain ),
+				esc_html__( 'Simply Auto SEO', $this->domain ),
 				'simply_auto_seo_settings',
 				'cdb-2021-simply-auto-seo-options',
 				array( $this, 'options_page'),

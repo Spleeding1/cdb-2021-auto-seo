@@ -4,7 +4,7 @@
  * Plugin Name: Simply Auto SEO
  * Plugin URI: https://github.com/Spleeding1/cdb-2021-simply-auto-seo
  * Description: Automatically adds SEO tags to &lt;head&gt;. Does not display any field inputs in WordPress Editor. name="description" can be edited through post excerpts and taxonomy descriptions.
- * Version: 1.0.1
+ * Version: 1.1.0
  * Requires at least: 5.8
  * Requires PHP: 7.4
  * Author: Carl David Brubaker
@@ -28,7 +28,7 @@ if ( ! defined( $prefix . '_PATH' ) ) {
 }
 
 if ( ! defined($prefix . '_VERSION') ) {
-	define( $prefix . '_VERSION', '1.0.1' );
+	define( $prefix . '_VERSION', '1.1.0' );
 }
 
 if ( ! defined( $prefix . '_TEXT_DOMAIN') ) {
@@ -100,7 +100,7 @@ class CDB_2021_Simply_Auto_SEO
 	 * false if plugin version does not match or no option stored.
 	 * 
 	 * Use this method to set and update
-	 * array {{plugin_snake}}_options.
+	 * array cdb_2021_simply_auto_seo_options.
 	 */
 	public function pluginVersionOptionIsTheLatest()
 	{

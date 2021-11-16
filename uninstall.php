@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Simply Auto SEO
+ * @package Simply Auto SEO
  * uninstall.php
  * Copyright (c) 2021 by Carl David Brubaker
  * All Rights Reserved

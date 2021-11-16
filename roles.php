@@ -5,7 +5,7 @@ namespace cdb_2021_Simply_Auto_SEO\roles;
 defined( 'ABSPATH' ) or exit;
 
 /**
- * Simply Auto SEO
+ * @package Simply Auto SEO
  * roles.php
  * Copyright (c) 2021 by Carl David Brubaker
  * All Rights Reserved
