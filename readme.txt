@@ -2,7 +2,7 @@
 Contributors: imconfused4sure
 Tags: seo, search engine optimization, easy seo, 
 Requires at least: 5.8
-Tested up to: 5.8
+Tested up to: 5.9
 Stable tag: 1.1.0
 Requires PHP: 7.4
 License: GPLv3 or later
@@ -17,3 +17,4 @@ Adds SEO tags to your website automatically without cluttering up the editor wit
 * Post/Page description can be trimmed using the admin options to exclude unwanted text (i.e. "Read More").
 * Categories, Tags, Archives etc. description is set by its own description.
 * v1.1.0 added "Simply Auto SEO Admin" role and "Simply Auto SEO Settings" capability.
+* v1.2.0 added "Enable Page Excerpts" option.

@@ -27,6 +27,10 @@ class CDB_2021_Simply_Auto_SEO_Admin
 			'admin_init',
 			array( $this, 'add_action_register_settings' )
 		);
+		add_action(
+			'admin_init',
+			array( $this, 'add_action_activate_page_excerpts' )
+		);
 	}
 
 	/**
@@ -79,6 +83,13 @@ class CDB_2021_Simply_Auto_SEO_Admin
 			'cdb_2021_simply_auto_seo_trim_description',
 			esc_html__( 'Trim Description at', $this->domain ),
 			array( $this, 'trim_description_field' ),
+			'cdb-2021-simply-auto-seo-options',
+			'cdb_2021_simply_auto_seo_section_description',
+		);
+		add_settings_field(
+			'cdb_2021_simply_auto_seo_enable_page_excerpts',
+			esc_html__( 'Enable Page Excerpts', $this->domain ),
+			array( $this, 'enable_page_excerpts_field' ),
 			'cdb-2021-simply-auto-seo-options',
 			'cdb_2021_simply_auto_seo_section_description',
 		);
@@ -135,6 +146,22 @@ class CDB_2021_Simply_Auto_SEO_Admin
 	}
 
 	/**
+	 * enable_page_excerpts form field.
+	 */
+	public function enable_page_excerpts_field()
+	{
+		$options = get_option( 'cdb_2021_simply_auto_seo_options' );
+		$enable_page_excerpts = isset( $options['enable_page_excerpts'] )
+				? $options['enable_page_excerpts'] : false;
+		?>
+		<input id="cdb_2021_simply_auto_seo_enable_page_excerpts"
+			   name="cdb_2021_simply_auto_seo_options[enable_page_excerpts]"
+			   type="checkbox"
+			   <?php checked( $enable_page_excerpts, true, true ); ?>>
+		<?php
+	}
+
+	/**
 	 * uninstall_delete_all_data form field.
 	 */
 	public function uninstall_delete_all_data_field()
@@ -179,8 +206,20 @@ class CDB_2021_Simply_Auto_SEO_Admin
 			);
 		}
 
+		$input['enable_page_excerpts'] = isset( $input['enable_page_excerpts'] ) ? true : false;
+
 		$input['uninstall_delete_all_data'] = isset( $input['uninstall_delete_all_data'] ) ? true : false;
 
 		return $input;
+	}
+
+	public function add_action_activate_page_excerpts()
+	{
+		$options = get_option( 'cdb_2021_simply_auto_seo_options' );
+		if ( isset( $options['enable_page_excerpts'] ) ) {
+			if ( $options['enable_page_excerpts']) {
+				add_post_type_support( 'page', 'excerpt' );
+			}
+		}
 	}
 }

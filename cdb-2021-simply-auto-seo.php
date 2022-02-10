@@ -4,7 +4,7 @@
  * Plugin Name: Simply Auto SEO
  * Plugin URI: https://github.com/Spleeding1/cdb-2021-simply-auto-seo
  * Description: Automatically adds SEO tags to &lt;head&gt;. Does not display any field inputs in WordPress Editor. name="description" can be edited through post excerpts and taxonomy descriptions.
- * Version: 1.1.0
+ * Version: 1.2.0
  * Requires at least: 5.8
  * Requires PHP: 7.4
  * Author: Carl David Brubaker
@@ -28,7 +28,7 @@ if ( ! defined( $prefix . '_PATH' ) ) {
 }
 
 if ( ! defined($prefix . '_VERSION') ) {
-	define( $prefix . '_VERSION', '1.1.0' );
+	define( $prefix . '_VERSION', '1.2.0' );
 }
 
 if ( ! defined( $prefix . '_TEXT_DOMAIN') ) {
@@ -76,7 +76,6 @@ class CDB_2021_Simply_Auto_SEO
 	public function __construct( string $prefix )
 	{
 		$this->prefix = $prefix;
-
 		add_action( 'init', array( $this, 'activateOrUpdate' ) );
 		add_action( 'wp_head', array( $this, 'action_add_seo_meta_tags' ) );
 	}
@@ -119,6 +118,7 @@ class CDB_2021_Simply_Auto_SEO
 				array(
 					'version' => $this->version,
 					'uninstall_delete_all_data' => true,
+					'enable_page_excerpts' => true,
 				)
 			);
 
@@ -177,11 +177,14 @@ class CDB_2021_Simply_Auto_SEO
 
 		if ( is_singular() || is_front_page() ) {
 			$options = get_option ('cdb_2021_simply_auto_seo_options');
+			$description = get_the_excerpt();
 			if ( ! empty( $options['trim_description'] ) ) {
-				$description = explode(
-					$options['trim_description'],
-					get_the_excerpt()
-				)[0] . '&hellip;';
+				if ( strpos( $description, $options['trim_description'] ) ) {
+					$description = explode(
+						$options['trim_description'],
+						$description
+					)[0] . '&hellip;';
+				}
 			} else {
 				$description = get_the_excerpt();
 			}
@@ -257,8 +260,8 @@ if ( is_admin() ) {
 	if ( class_exists( 'cdb_2021_Simply_Auto_SEO\admin\CDB_2021_Simply_Auto_SEO_Admin' ) ) {
 		new admin\CDB_2021_Simply_Auto_SEO_Admin();
 	}
-} else {
-	if ( class_exists( 'cdb_2021_Simply_Auto_SEO\CDB_2021_Simply_Auto_SEO' ) ) {
-		new CDB_2021_Simply_Auto_SEO( $prefix );
-	}
+}
+
+if ( class_exists( 'cdb_2021_Simply_Auto_SEO\CDB_2021_Simply_Auto_SEO' ) ) {
+	new CDB_2021_Simply_Auto_SEO( $prefix );
 }
