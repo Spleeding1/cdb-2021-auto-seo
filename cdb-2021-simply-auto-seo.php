@@ -6,6 +6,7 @@
  * Description: Automatically adds SEO tags to &lt;head&gt;. Does not display any field inputs in WordPress Editor. name="description" can be edited through post excerpts and taxonomy descriptions.
  * Version: 1.2.0
  * Requires at least: 5.8
+ * Tested up to: 5.9
  * Requires PHP: 7.4
  * Author: Carl David Brubaker
  * Author URI: https://carlbrubaker.com/
